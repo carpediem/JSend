@@ -1,0 +1,36 @@
+{
+    "name": "carpediem/jsend",
+    "type" : "library",
+    "description" : "An Immutable Value Object JSend compliant",
+    "keywords": ["Jsend", "import", "export", "json", "rest"],
+    "license": "MIT",
+    "homepage" : "https://www.carpediem.fr",
+    "support": {
+        "issues": "https://github.com/thephpleague/csv/issues"
+    },
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit" : "^4.0",
+        "fabpot/php-cs-fixer": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Carpediem\\JSend\\" : "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Carpediem\\JSend\\Test\\": "test"
+        }
+    },
+    "scripts": {
+        "test": "phpunit; php-cs-fixer fix -v --diff --dry-run;"
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
