@@ -4,7 +4,7 @@ JSend
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/carpediem/JSend/master.svg?style=flat-square)](https://travis-ci.org/carpediem/JSend)
 
-JSend is a simple library to ease creation of JSend compliant response.
+JSend is a simple library to ease creation of [JSend compliant](https://labs.omniti.com/labs/jsend) response.
 
 Highlights
 -------
