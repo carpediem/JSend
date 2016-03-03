@@ -220,7 +220,7 @@ class JSend implements JsonSerializable
     /**
      * Filter Submitted Headers
      *
-     * @param array $inputHeaders a Collection of key/value headers
+     * @param array $headers a Collection of key/value headers
      *
      * @return array
      */

@@ -4,7 +4,7 @@ JSend
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/carpediem/JSend/master.svg?style=flat-square)](https://travis-ci.org/carpediem/JSend)
 
-JSend is a simple library to ease creation of [JSend compliant](https://labs.omniti.com/labs/jsend) response.
+JSend is a simple library to ease creation of [JSend compliant](https://labs.omniti.com/labs/jsend) HTTP response.
 
 Highlights
 -------
@@ -27,7 +27,7 @@ Install
 Install `use Carpediem\JSend` using Composer.
 
 ```
-$ composer require carpediem/JSend
+$ composer require carpediem/jsend
 ```
 
 Documentation
@@ -35,7 +35,7 @@ Documentation
 
 ### Instantiation
 
-To ease use `Carpediem\JSend\JSend` response instantiation, and because creating JSend response comes in different ways named constructors are used to offer several ways to instantiate the object.
+To ease JSend object creation named constructors are used to offer several ways to instantiate the object.
 
 #### From a JSON string
 
@@ -61,10 +61,10 @@ $arr = [
 		],
 	],
 ];
-$JSend = JSend::createFromString($arr);
+$JSend = JSend::createFromArray($arr);
 ```
 
-#### Depending on the JSend response status
+#### Depending on the JSend status
 
 ```php
 use Carpediem\JSend\JSend;
@@ -76,9 +76,13 @@ $data = [
 		'author' = 'bar'
 	],
 ];
+
+$errorMessage = 'An error occurs';
+$errorCode = 42;
+
 $JSendSuccess = JSend::success($data); //JSend success response object
 $JSendFailed = JSend::fail($data); //JSend fail response object
-$JSendError = JSend::error('An error occurs', 42, $data); //JSend error object
+$JSendError = JSend::error($errorMessage, $errorCode, $data); //JSend error object
 ```
 
 #### Using the default constructor
@@ -86,24 +90,14 @@ $JSendError = JSend::error('An error occurs', 42, $data); //JSend error object
 ```php
 use Carpediem\JSend\JSend;
 
-$data = [
-		'post' => [
-			'id' => 1,
-			'title' => 'foo',
-			'author' = 'bar'
-		],
-	],
-];
-$JSendSuccess = JSend::success('success', $data); //JSend success response object
-$JSendFailed = JSend::fail('fail', $arr); //JSend fail response object
-$JSendError = JSend::error('error', null, 'An error occurs', 42); //JSend error object
+$response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
 ```
 
 - If a `JSend` response object can not be created an PHP `Exception` is thrown
 - The class comes bundle with constant to ease writing the 3 success state:
-    - `JSend::STATUS_SUCCESS`
-    - `JSend::STATUS_FAIL`
-    - `JSend::STATUS_ERROR`
+    - `JSend::STATUS_SUCCESS` which correspond to `success`;
+    - `JSend::STATUS_FAIL` which correspond to `fail`;
+    - `JSend::STATUS_ERROR` which correspond to `error`;
 
 ### JSend response properties
 
@@ -120,7 +114,7 @@ $data = [
 		],
 	],
 ];
-$response = JSend::success(JSend::STATUS_SUCCESS, $data); //JSend success response object
+$response = JSend::success($data); //JSend success response object
 $response->getStatus(); //return 'success';
 $response->getData(); //return an array
 $response->getErrorMessage(); //return a string
@@ -129,7 +123,7 @@ $response->getErrorCode(); return an integer OR null if no code was given;
 
 ### Modifying a JSend response object
 
-`Carpediem\JSend` is an immutable value object as such modifying any of its property returns a new instance with the modified properties while leaving the current instance unchanged. The class uses the following modifiers:
+`Carpediem\JSend` is an immutable value object as such modifying any of its properties returns a new instance with the modified properties while leaving the current instance unchanged. The class uses the following modifiers:
 
 - `JSend::withStatus($status)` to modify the response status
 - `JSend::withData(array $data)` to modify the response data
@@ -223,7 +217,7 @@ $data = [
 	],
 ];
 $response = JSend::success($data);
-echo json_encode($response,  JSON_PRETTY_PRINT);
+echo json_encode($response, JSON_PRETTY_PRINT);
 //returns
 //{
 //    "status":"success",
