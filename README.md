@@ -115,10 +115,10 @@ $data = [
 	],
 ];
 $response = JSend::success($data); //JSend success response object
-$response->getStatus(); //return 'success';
-$response->getData(); //return an array
-$response->getErrorMessage(); //return a string
-$response->getErrorCode(); return an integer OR null if no code was given;
+$response->getStatus(); //returns 'success';
+$response->getData(); //returns an array
+$response->getErrorMessage(); //returns a string
+$response->getErrorCode(); //returns an integer OR null if no code was given;
 ```
 
 ### Modifying a JSend response object
@@ -142,9 +142,9 @@ $data = [
 ];
 $response = JSend::success($data);
 $newResponse = $response->withData(['test' => 'ok'])->withStatus(JSend::STATUS_FAIL);
-$newResponse->getData();   //return ['test' => 'ok'];
-$newResponse->getStatus(); //return 'fail';
-$response->getData();      //return an array equals to $data
+$newResponse->getData();   //returns ['test' => 'ok'];
+$newResponse->getStatus(); //returns 'fail';
+$response->getData();      //returns an array equals to $data
 ```
 
 If the modification is not possible or forbidden a PHP Exception will be thrown.
