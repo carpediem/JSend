@@ -1,8 +1,14 @@
 JSend
 ==========
 
+[![Latest Version](https://img.shields.io/github/release/carpediem/jsend.svg?style=flat-square)](https://github.com/carpediem/jsend/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/carpediem/JSend/master.svg?style=flat-square)](https://travis-ci.org/carpediem/JSend)
+[![HHVM Status](https://img.shields.io/hhvm/carpediem/jsend.svg?style=flat-square)](http://hhvm.h4cc.de/package/carpediem/jsend)
+[![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/carpediem/jsend.svg?style=flat-square)](https://scrutinizer-ci.com/g/carpediem/jsend/code-structure)
+[![Quality Score](https://img.shields.io/scrutinizer/g/carpediem/jsend.svg?style=flat-square)](https://scrutinizer-ci.com/g/carpediem/jsend)
+[![Total Downloads](https://img.shields.io/packagist/dt/carpediem/jsend.svg?style=flat-square)](https://packagist.org/packages/carpediem/jsend)
+
 
 JSend is a simple library to ease creation of [JSend compliant](https://labs.omniti.com/labs/jsend) HTTP response.
 
@@ -19,12 +25,12 @@ Highlights
 System Requirements
 -------
 
-You need **PHP >= 5.5.0** to use `Carpediem\JSend` but the latest stable version of PHP/HHVM is recommended.
+You need **PHP >= 5.5.0** to use `JSend` but the latest stable version of PHP/HHVM is recommended.
 
 Install
 -------
 
-Install `use Carpediem\JSend` using Composer.
+Install `JSend` using Composer.
 
 ```
 $ composer require carpediem/jsend
@@ -91,15 +97,17 @@ $JSendError = JSend::error($errorMessage, $errorCode, $data); //JSend error obje
 use Carpediem\JSend\JSend;
 
 $response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
+//or
+$responseBis = new JSend('error', $data, $errorMessage, $errorCode);
 ```
 
 - If a `JSend` response object can not be created an PHP `Exception` is thrown
-- The class comes bundle with constant to ease writing the 3 success state:
+- The class comes bundle with constant to ease writing the 3 available states:
     - `JSend::STATUS_SUCCESS` which correspond to `success`;
     - `JSend::STATUS_FAIL` which correspond to `fail`;
     - `JSend::STATUS_ERROR` which correspond to `error`;
 
-### JSend response properties
+### JSend properties
 
 Once the JSend object is instantiated you can get access to all its information:
 
@@ -115,19 +123,22 @@ $data = [
 	],
 ];
 $response = JSend::success($data); //JSend success response object
-$response->getStatus(); //returns 'success';
+$response->getStatus(); //returns 'success' (can also be 'fail' or 'error');
+$response->isSuccess(); //returns true (depends on the JSend status value)
+$response->isFail(); //returns false  (depends on the JSend status value)
+$response->isError(); //returns false  (depends on the JSend status value)
 $response->getData(); //returns an array
 $response->getErrorMessage(); //returns a string
 $response->getErrorCode(); //returns an integer OR null if no code was given;
 ```
 
-### Modifying a JSend response object
+### Modifying a JSend object
 
 `Carpediem\JSend` is an immutable value object as such modifying any of its properties returns a new instance with the modified properties while leaving the current instance unchanged. The class uses the following modifiers:
 
-- `JSend::withStatus($status)` to modify the response status
-- `JSend::withData(array $data)` to modify the response data
-- `JSend::withError($errorMessage, $errorCode = null)` to modify the response error properties
+- `JSend::withStatus($status)` to modify the status
+- `JSend::withData(array $data)` to modify the data
+- `JSend::withError($errorMessage, $errorCode = null)` to modify the error properties
 
 ```php
 use Carpediem\JSend\JSend;
@@ -147,32 +158,13 @@ $newResponse->getStatus(); //returns 'fail';
 $response->getData();      //returns an array equals to $data
 ```
 
-If the modification is not possible or forbidden a PHP Exception will be thrown.
+**If the modification is not possible or forbidden a PHP Exception will be thrown.**
 
-### Convert the object
+### JSend conversion methods
 
-#### Converting to string
+#### Array conversion
 
-The class implements the `__toString` method so you can output the JSON representation of the class using the `echo` construct.
-
-```php
-use Carpediem\JSend\JSend;
-
-$data = [
-		'post' => [
-			'id' => 1,
-			'title' => 'foo',
-			'author' = 'bar'
-		],
-	],
-];
-$response = JSend::success($data);
-echo $response; //returns {"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}};
-```
-
-#### Converting to array
-
-The class returns the array representation of the JSON response object using the `toArray` method;
+The class returns the object array representation using the `toArray` method;
 
 
 ```php
@@ -201,9 +193,28 @@ $response->toArray();
 //];
 ```
 
-### Implements the `JsonSerializable` interface
+#### String conversion
 
-If you want to change how the JSON Response object is converted to string you can use the fact that the class implements PHP's `JsonSerializable` interface
+The class implements the `__toString` method so you can output the JSON representation of the class using the `echo` construct.
+
+```php
+use Carpediem\JSend\JSend;
+
+$data = [
+		'post' => [
+			'id' => 1,
+			'title' => 'foo',
+			'author' = 'bar'
+		],
+	],
+];
+$response = JSend::success($data);
+echo $response; //returns {"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}};
+```
+
+#### Implements the `JsonSerializable` interface
+
+If you want to change the object string output you can use the fact that the class implements PHP's `JsonSerializable` interface
 
 ```php
 use Carpediem\JSend\JSend;
@@ -257,7 +268,7 @@ $response->send(['Access-Control-Allow-Origin' => 'example.com']);
 Testing
 -------
 
-`Carpediem\JSend` has a [PHPUnit](https://phpunit.de) test suite and a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/). To run the tests, run the following command from the project folder.
+`JSend` has a [PHPUnit](https://phpunit.de) test suite and a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/). To run the tests, run the following command from the project folder.
 
 ``` bash
 $ composer test

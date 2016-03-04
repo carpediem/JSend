@@ -285,7 +285,7 @@ class JSend implements JsonSerializable
     /**
      * Validate Header value
      *
-     * @param string $name
+     * @param string $value
      *
      * @throws InvalidArgumentException if the header value is invalid
      *
