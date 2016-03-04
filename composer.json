@@ -6,7 +6,7 @@
     "license": "MIT",
     "homepage" : "https://www.carpediem.fr",
     "support": {
-        "issues": "https://github.com/thephpleague/csv/issues"
+        "issues": "https://github.com/carpediem/jsend/issues"
     },
     "require": {
         "php": ">=5.5"
