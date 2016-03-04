@@ -121,7 +121,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return the JSend status
+     * Returns the JSend status
      *
      * @return string
      */
@@ -131,7 +131,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return the JSend data
+     * Returns the JSend data
      *
      * @return array
      */
@@ -141,7 +141,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return the JSend error message
+     * Returns the JSend error message
      *
      * @return string
      */
@@ -151,13 +151,43 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return the JSend error code
+     * Returns the JSend error code
      *
      * @return int|null
      */
     public function getErrorCode()
     {
         return $this->errorCode;
+    }
+
+    /**
+     * Returns true if the status is success
+     *
+     * @return bool
+     */
+    public function isSuccess()
+    {
+        return self::STATUS_SUCCESS === $this->status;
+    }
+
+    /**
+     * Returns true if the status is fail
+     *
+     * @return bool
+     */
+    public function isFail()
+    {
+        return self::STATUS_FAIL === $this->status;
+    }
+
+    /**
+     * Returns true if the status is error
+     *
+     * @return bool
+     */
+    public function isError()
+    {
+        return self::STATUS_ERROR === $this->status;
     }
 
     /**
@@ -168,7 +198,7 @@ class JSend implements JsonSerializable
     public function toArray()
     {
         $arr = ['status' => $this->status, 'data' => $this->data ?: null];
-        if (self::STATUS_ERROR != $this->status) {
+        if (self::STATUS_ERROR !== $this->status) {
             return $arr;
         }
 
@@ -273,7 +303,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return an instance with the specified status.
+     * Returns an instance with the specified status.
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified status.
@@ -292,7 +322,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return an instance with the specified data.
+     * Returns an instance with the specified data.
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified data.
@@ -311,7 +341,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return an instance with the specified error message and error code.
+     * Returns an instance with the specified error message and error code.
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified error message and error code.
@@ -331,7 +361,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return a successful JSend object with the specified data
+     * Returns a successful JSend object with the specified data
      *
      * @param array $data The data to use with the new instance.
      *
@@ -343,7 +373,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return a failed JSend object with the specified data
+     * Returns a failed JSend object with the specified data
      *
      * @param array $data The data to use with the new instance.
      *
@@ -355,7 +385,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return a error JSend object with the specified error message and error code.
+     * Returns a error JSend object with the specified error message and error code.
      *
      * @param string   $errorMessage The error message to use with the new instance.
      * @param int|null $errorCode    The error code to use with the new instance.
@@ -369,7 +399,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return a new instance from a JSON string
+     * Returns a new instance from a JSON string
      *
      * @param string $json    The string being decoded
      * @param int    $depth   User specified recursion depth.
@@ -394,7 +424,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Return a new instance from an array
+     * Returns a new instance from an array
      *
      * @param array $arr The array to build a new JSend object with
      *

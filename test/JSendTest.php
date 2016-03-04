@@ -86,17 +86,32 @@ class JSendTest extends TestCase
 
     public function testSucces()
     {
-        $this->assertEquals($this->JSendSuccess, JSend::success($this->dataSuccess));
+        $response = JSend::success($this->dataSuccess);
+        $this->assertEquals($this->JSendSuccess, $response);
+        $this->assertTrue($response->isSuccess());
+        $this->assertFalse($response->isFail());
+        $this->assertFalse($response->isError());
     }
 
     public function testFail()
     {
-        $this->assertSame('{"status":"fail","data":null}', JSend::fail([])->__toString());
+        $response = JSend::fail([]);
+        $this->assertSame('{"status":"fail","data":null}', (string) $response);
+        $this->assertFalse($response->isSuccess());
+        $this->assertTrue($response->isFail());
+        $this->assertFalse($response->isError());
     }
 
     public function testError()
     {
-        $this->assertSame('{"status":"error","message":"This is an error","code":23}', JSend::error('This is an error', 23)->__toString());
+        $response = JSend::error('This is an error', 23);
+        $this->assertSame(
+            '{"status":"error","message":"This is an error","code":23}',
+            (string) $response
+        );
+        $this->assertFalse($response->isSuccess());
+        $this->assertFalse($response->isFail());
+        $this->assertTrue($response->isError());
     }
 
     public function testCreateFromString()
