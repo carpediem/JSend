@@ -191,6 +191,22 @@ class JSend implements JsonSerializable
     }
 
     /**
+     * @inheritdoc
+     */
+    public function __toString()
+    {
+        return json_encode($this, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function jsonSerialize()
+    {
+        return $this->toArray();
+    }
+
+    /**
      * Transcode the JSend object into an array
      *
      * @return array
@@ -217,17 +233,9 @@ class JSend implements JsonSerializable
     /**
      * @inheritdoc
      */
-    public function jsonSerialize()
+    public function __debugInfo()
     {
         return $this->toArray();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function __toString()
-    {
-        return json_encode($this, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
     }
 
     /**
@@ -421,6 +429,14 @@ class JSend implements JsonSerializable
         }
 
         return static::createFromArray($raw);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function __set_state(array $properties)
+    {
+        return static::createFromArray($properties);
     }
 
     /**

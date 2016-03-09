@@ -127,20 +127,24 @@ class JSendTest extends TestCase
         JSend::createFromString('fqdsfsd');
     }
 
-    /**
-     * @expectedException \UnexpectedValueException
-     * @dataProvider createFromArrayProvider
-     */
-    public function testCreateFromArrayThrowsUnexpectedValueException($data)
+    public function testSetState()
     {
-        JSend::createFromArray($data);
+        $a = JSend::success(['foo' => 'bar']);
+        eval('$b = '.var_export($a, true).';');
+        $this->assertEquals($a, $b);
     }
 
-    public function createFromArrayProvider()
+    public function testDebugInfo()
     {
-        return [
-            'Missing required status index' => [['data' => ['post' => 1], 'code' => 404]],
-        ];
+        $this->assertSame($this->JSendSuccess->__debugInfo(), $this->JSendSuccess->toArray());
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testCreateFromArrayThrowsUnexpectedValueExceptionIfStatusIsMissing()
+    {
+        JSend::createFromArray(['data' => ['post' => 1], 'code' => 404]);
     }
 
     public function testWithStatusReturnSameInstance()

@@ -132,6 +132,8 @@ $response->getErrorMessage(); //returns a string
 $response->getErrorCode(); //returns an integer OR null if no code was given;
 ```
 
+**Added in version 1.1**: `Jsend::isSuccess`,  `Jsend::isFail`, `Jsend::isError`
+
 ### Modifying a JSend object
 
 `Carpediem\JSend` is an immutable value object as such modifying any of its properties returns a new instance with the modified properties while leaving the current instance unchanged. The class uses the following modifiers:
@@ -264,6 +266,16 @@ $response->send(['Access-Control-Allow-Origin' => 'example.com']);
 // the headers will contain the following headers
 // Content-Type and Access-Control-Allow-Origin
 ```
+
+### Magic Debugging methods
+
+**new in JSend version 1.2**
+
+JSend debug is made easy using the following PHP's magic methods:
+
+- JSend implements `__set_state` method which is a alias of the JSend::createFromArray method.
+- JSend implements `__debugInfo` method available for PHP5.6+
+
 
 Testing
 -------
