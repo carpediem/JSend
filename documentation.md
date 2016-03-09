@@ -7,38 +7,17 @@ title: Documentation
 
 To ease `JSend` object creation named constructors are used to offer several ways to instantiate the object.
 
-### From a JSON string
-
-```php
-<?php
-
-use Carpediem\JSend\JSend;
-
-$jsonString = '{"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}}';
-$response = JSend::createFromString($jsonString);
-```
-
-### From a PHP array
-
-```php
-<?php
-
-use Carpediem\JSend\JSend;
-
-$arr = [
-	'status' => 'success',
-	'data' => [
-		'post' => [
-			'id' => 1,
-			'title' => 'foo',
-			'author' = 'bar'
-		],
-	],
-];
-$response = JSend::createFromArray($arr);
-```
+<p class="message-warning">If the submitted data is not compliant with the specification a PHP Exception will be thrown.</p>
 
 ### Depending on the response status
+
+As per the JSend specification, a JSend compliant response can have 3 status:
+
+- `success`
+- `fail`
+- `error`
+
+The class comes with 3 separate named constructor to ease creating the 3 types of responses.
 
 ```php
 <?php
@@ -61,7 +40,44 @@ $failedResponse = JSend::fail($data); //JSend fail response object
 $errorResponse = JSend::error($errorMessage, $errorCode, $data); //JSend error object
 ```
 
+### From a JSON string
+
+Since a JSend response is represented by a JSON string. If you already have a JSend string you can create a new `JSend` object from that string if it complies with JSend specification.
+
+```php
+<?php
+
+use Carpediem\JSend\JSend;
+
+$jsonString = '{"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}}';
+$response = JSend::createFromString($jsonString);
+```
+
+### From a PHP array
+
+If you prefer working with arrays, `JSend::createFromArray` will return a new JSend object
+
+```php
+<?php
+
+use Carpediem\JSend\JSend;
+
+$arr = [
+	'status' => 'success',
+	'data' => [
+		'post' => [
+			'id' => 1,
+			'title' => 'foo',
+			'author' = 'bar'
+		],
+	],
+];
+$response = JSend::createFromArray($arr);
+```
+
 ### Using the default constructor
+
+You can always fallback to use the default constructor to instantiate a new `JSend` object.
 
 ```php
 <?php
@@ -73,15 +89,14 @@ $response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
 $responseBis = new JSend('error', $data, $errorMessage, $errorCode);
 ```
 
-- If a `JSend` response object can not be created an PHP `Exception` is thrown
-- The class comes bundle with constant to ease writing the 3 available states:
+- The class comes bundle with constant to ease writing the 3 available response type:
     - `JSend::STATUS_SUCCESS` which correspond to `success`;
     - `JSend::STATUS_FAIL` which correspond to `fail`;
     - `JSend::STATUS_ERROR` which correspond to `error`;
 
 ## Accessing the response properties
 
-Once the `JSend` object is instantiated you can get access to all its information:
+Once the `JSend` object is instantiated you can get access to all its information using the following methods:
 
 ```php
 <?php
@@ -191,7 +206,7 @@ $response = JSend::success($data);
 echo $response; //returns {"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}};
 ```
 
-### Implements the `JsonSerializable` interface
+### Json conversion
 
 If you want to change the object string output you can use the fact that the class implements PHP's `JsonSerializable` interface
 
@@ -227,7 +242,7 @@ echo json_encode($response, JSON_PRETTY_PRINT);
 
 ## Sending the response
 
-You can directly send the JSend object with the `application/json` header as well as optionals headers with the `JSend::send` method.
+You can directly send the JSend object with the `application/json` header using the `JSend::send` method. Optionally, you can add more headers information using this method.
 
 ```php
 <?php
@@ -247,6 +262,7 @@ $response->send(['Access-Control-Allow-Origin' => 'example.com']);
 // the headers will contain the following headers
 // Content-Type and Access-Control-Allow-Origin
 ```
+<p class="message-warning">If on of the additional header submitted are malformed an exception will be thrown.</p>
 
 ## Debugging methods
 
