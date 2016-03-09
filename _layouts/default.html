@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+{% if page.url == '/' %}
+    <title>{{ site.data.project.title }} - {{ site.data.project.tagline }}</title>
+{% else %}
+    <title>{{ page.title }} - {{ site.data.project.title }}</title>
+{% endif %}
+    <meta name="description" content="{{ site.data.project.description }}">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Raleway:400,900,700">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/pygment.css">
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+</head>
+<body>
+
+<!-- header -->
+<header class="top-bar">
+    <menu class="wrapper">
+        <ul>
+            <li><a href="/"><strong>{{ site.data.project.title }}</strong></a></li>
+{% for link in site.data.menu %}
+            <li{% if page.url == link[1] %} class="active"{% endif %}><a href="{{ link[1] }}">{{ link[0] }}</a></li>
+{% endfor %}
+        </ul>
+    </menu>
+</header>
+
+<!-- content -->
+<article>
+    {{ content }}
+</article>
+
+</body>
+</html>

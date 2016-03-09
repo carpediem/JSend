@@ -1,0 +1,3 @@
+title: JSend
+tagline: "A PHP JSend compliant HTTP Response object"
+description: "JSend is a immutable value object HTTP Response compliant with the JSend specification"
