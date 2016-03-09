@@ -22,8 +22,8 @@ Going solo
 
 You can also use the library without Composer by:
 
-* heading to the releases page
-* selecting tour version and downloading it in your preferred format
+* heading to the [releases page](https://github.com/carpediem/JSend/releases)
+* selecting your version and downloading it in your preferred format
 
 Once extracted you will be able to load the library using any [PSR-4][] compatible autoloader.
 
