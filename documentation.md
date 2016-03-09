@@ -262,7 +262,7 @@ $response->send(['Access-Control-Allow-Origin' => 'example.com']);
 // the headers will contain the following headers
 // Content-Type and Access-Control-Allow-Origin
 ```
-<p class="message-warning">If on of the additional header submitted are malformed an exception will be thrown.</p>
+<p class="message-warning">If any of the additional header submitted are malformed an exception will be thrown.</p>
 
 ## Debugging methods
 
