@@ -4,7 +4,7 @@
     "description" : "An Immutable Value Object JSend compliant",
     "keywords": ["Jsend", "import", "export", "json", "rest"],
     "license": "MIT",
-    "homepage" : "https://www.carpediem.fr",
+    "homepage" : "http://carpediem.github.io/JSend",
     "support": {
         "issues": "https://github.com/carpediem/jsend/issues"
     },
