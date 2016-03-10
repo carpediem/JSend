@@ -221,7 +221,7 @@ $newResponse->getStatus(); //returns 'fail';
 $response->getData();      //returns an array equals to $data
 ```
 
-## Conversion methods
+## Converting the response
 
 ### Array conversion
 
