@@ -3,7 +3,7 @@ layout: default
 title: Documentation
 ---
 
-## Creating an HTTP Response
+## Creating the HTTP Response
 
 To ease `JSend` object creation named constructors are used to offer several ways to instantiate the object.
 
@@ -11,13 +11,26 @@ To ease `JSend` object creation named constructors are used to offer several way
 
 ### Depending on the response status
 
+#### Description
+
+```php
+<?php
+
+public static JSend::success(array $data): JSend
+public static JSend::fail(array $data): JSend
+public static JSend::error(string $errorMessage, int $errorCode = null): JSend
+```
+
 As per the JSend specification, a JSend compliant response can have 3 status:
 
 - `success`
 - `fail`
 - `error`
 
-The class comes with 3 separate named constructor to ease creating the 3 types of responses.
+
+The class comes with 3 separate named constructors to ease creating these response type.
+
+#### Example
 
 ```php
 <?php
@@ -42,7 +55,17 @@ $errorResponse = JSend::error($errorMessage, $errorCode, $data); //JSend error o
 
 ### From a JSON string
 
+#### Description
+
+```php
+<?php
+
+public static JSend::createFromString(string $json): JSend
+```
+
 Since a JSend response is represented by a JSON string. If you already have a JSend string you can create a new `JSend` object from that string if it complies with JSend specification.
+
+#### Example
 
 ```php
 <?php
@@ -55,7 +78,17 @@ $response = JSend::createFromString($jsonString);
 
 ### From a PHP array
 
+#### Description
+
+```php
+<?php
+
+public static JSend::createFromArray(array $data): JSend
+```
+
 If you prefer working with arrays, `JSend::createFromArray` will return a new JSend object
+
+#### Example
 
 ```php
 <?php
@@ -77,7 +110,30 @@ $response = JSend::createFromArray($arr);
 
 ### Using the default constructor
 
-You can always fallback to use the default constructor to instantiate a new `JSend` object.
+#### Description
+
+```php
+<?php
+
+public JSend::__construct(
+	string $status,
+	array $data = null,
+	string $errorMessage = null,
+	int $errorCode = null
+): JSend
+```
+
+#### Parameters
+
+- `$status` a string representing one of JSend type or a `JSend` constant to ease managing the type
+    - `JSend::STATUS_SUCCESS` which correspond to `success`;
+    - `JSend::STATUS_FAIL` which correspond to `fail`;
+    - `JSend::STATUS_ERROR` which correspond to `error`;
+- `$data` an array representing the data to be send. The parameter is optional.
+- `$errorMessage` an string representing the error message. The parameter is optional.
+- `$errorCode` an integer representing the error code. The parameter is optional.
+
+#### Example
 
 ```php
 <?php
@@ -89,14 +145,23 @@ $response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
 $responseBis = new JSend('error', $data, $errorMessage, $errorCode);
 ```
 
-- The class comes bundle with constant to ease writing the 3 available response type:
-    - `JSend::STATUS_SUCCESS` which correspond to `success`;
-    - `JSend::STATUS_FAIL` which correspond to `fail`;
-    - `JSend::STATUS_ERROR` which correspond to `error`;
-
 ## Accessing the response properties
 
 Once the `JSend` object is instantiated you can get access to all its information using the following methods:
+
+```php
+<?php
+
+public JSend::getStatus(): string
+public JSend::isSuccess(): bool
+public JSend::isFail(): bool
+public JSend::isError(): bool
+public JSend::getData(): array
+public JSend::getErrorMessage(): string
+public JSend::getErrorCode(): int|null
+```
+
+#### Example
 
 ```php
 <?php
@@ -111,23 +176,30 @@ $data = [
 		],
 	],
 ];
-$response = JSend::success($data); //JSend success response object
-$response->getStatus(); //returns 'success' (can also be 'fail' or 'error');
-$response->isSuccess(); //returns true (depends on the JSend status value)
-$response->isFail(); //returns false  (depends on the JSend status value)
-$response->isError(); //returns false  (depends on the JSend status value)
+$response = JSend::success($data);
+$response->getStatus(); //returns 'success'
+$response->isSuccess(); //returns true
+$response->isFail(); //returns false
+$response->isError(); //returns false
 $response->getData(); //returns an array
-$response->getErrorMessage(); //returns a string
-$response->getErrorCode(); //returns an integer OR null if no code was given;
+$response->getErrorMessage(); //returns a empty string
+$response->getErrorCode(); //returns null
 ```
 
 ## Modifying the response
 
 `JSend` is an immutable value object as such modifying any of its properties returns a new instance with the modified properties while leaving the current instance unchanged. The class uses the following modifiers:
 
-- `JSend::withStatus($status)` to modify the status
-- `JSend::withData(array $data)` to modify the data
-- `JSend::withError($errorMessage, $errorCode = null)` to modify the error properties
+```php
+<?php
+
+public JSend::withStatus(string $status): JSend
+public JSend::widthData(array $data): JSend
+public JSend::withError(string $errorMessage = null, int $errorCode = null): JSend
+```
+<p class="message-warning">If the modification is not possible or forbidden a PHP Exception will be thrown.</p>
+
+#### Example
 
 ```php
 <?php
@@ -149,13 +221,21 @@ $newResponse->getStatus(); //returns 'fail';
 $response->getData();      //returns an array equals to $data
 ```
 
-<p class="message-warning">If the modification is not possible or forbidden a PHP Exception will be thrown.</p>
-
 ## Conversion methods
 
 ### Array conversion
 
+#### Description
+
+```php
+<?php
+
+public JSend::toArray(): array
+```
+
 The class returns the `JSend` array representation using the `toArray` method;
+
+#### Example
 
 ```php
 <?php
@@ -187,7 +267,17 @@ $response->toArray();
 
 ### String conversion
 
+#### Description
+
+```php
+<?php
+
+public JSend::__toString(): string
+```
+
 The class implements the `__toString` method so you can output the JSON representation of the class using the `echo` construct.
+
+#### Example
 
 ```php
 <?php
@@ -208,7 +298,17 @@ echo $response; //returns {"status":"success","data":{"post":{"id":1,"title":"fo
 
 ### Json conversion
 
+#### Description
+
+```php
+<?php
+
+public JSend::jsonSerialize(): string
+```
+
 If you want to change the object string output you can use the fact that the class implements PHP's `JsonSerializable` interface
+
+#### Example
 
 ```php
 <?php
@@ -242,7 +342,23 @@ echo json_encode($response, JSON_PRETTY_PRINT);
 
 ## Sending the response
 
+#### Description
+
+```php
+<?php
+
+public JSend::send(array $headers = []): string
+```
+
 You can directly send the JSend object with the `application/json` header using the `JSend::send` method. Optionally, you can add more headers information using this method.
+
+#### Parameters
+
+- `$headers` additional headers as an associative array. This parameter is optional.
+
+<p class="message-warning">If any of the additional header submitted are malformed an exception will be thrown.</p>
+
+#### Example
 
 ```php
 <?php
@@ -262,11 +378,14 @@ $response->send(['Access-Control-Allow-Origin' => 'example.com']);
 // the headers will contain the following headers
 // Content-Type and Access-Control-Allow-Origin
 ```
-<p class="message-warning">If any of the additional header submitted are malformed an exception will be thrown.</p>
 
 ## Debugging methods
 
 `JSend` debugging is made easy using the following PHP's magic methods:
 
-- JSend implements `__set_state` method which is a alias of the JSend::createFromArray method.
-- JSend implements `__debugInfo` method available for PHP5.6+
+```php
+<?php
+
+public static JSend::__set_state(array $data): JSend
+public static JSend::__debugInfo(): array
+```
