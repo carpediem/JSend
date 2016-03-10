@@ -5,7 +5,7 @@ title: Contributing
 
 ## Contributions
 
-Contributions are **welcome** and will be fully **credited**. This project is open source, and it is made better in every possible way thanks to contributors like you. <a href="https://github.com/carpediem/jsend">View Source Code</a>
+<p class="contribute">Contributions are <strong>welcome</strong> and will be fully <strong>credited</strong>.<br> This project is open source, and it is made better in every possible way thanks to contributors like you. <a href="https://github.com/carpediem/jsend">View Source Code</a></p>
 
 ## Bug Report
 
@@ -49,6 +49,3 @@ We accept contributions via Pull Requests on [Github](https://github.com/carpedi
 ``` bash
 $ composer test
 ```
-
-
-**Happy coding**!

@@ -21,10 +21,10 @@
 <body>
 
 <!-- header -->
-<header class="top-bar">
-    <menu class="wrapper">
+<header>
+    <menu>
         <ul>
-            <li><a href="{{ site.baseurl }}/"><strong>{{ site.data.project.title }}</strong></a></li>
+            <li class="top"><a href="{{ site.baseurl }}/"><strong>{{ site.data.project.title }}</strong></a></li>
 {% for link in site.data.menu %}
             <li{% if page.url == link[1] %} class="active"{% endif %}><a href="{{ site.baseurl }}{{ link[1] }}">{{ link[0] }}</a></li>
 {% endfor %}
@@ -33,9 +33,16 @@
 </header>
 
 <!-- content -->
-<article>
-    {{ content }}
-</article>
+<main>
+    <article>
+{{ content }}
+    </article>
+</main>
+
+<!-- header bgcolor as the cat in -->
+<footer>
+    <p><a href="https://www.carpediem.fr" target="_blank" title="Carpe Diem"><strong>CarpeDiem</strong></a></p>
+</footer>
 
 </body>
 </html>
