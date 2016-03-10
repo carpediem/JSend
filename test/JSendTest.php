@@ -27,7 +27,7 @@ class JSendTest extends TestCase
         $this->assertSame($expected, (string) $JSend);
         $this->assertSame($status, $JSend->getStatus());
         $this->assertSame($data, $JSend->getData());
-        if (JSend::STATUS_FAIL != $status) {
+        if (JSend::STATUS_ERROR === $status) {
             $this->assertSame((string) $message, $JSend->getErrorMessage());
             $this->assertSame($code, $JSend->getErrorCode());
         }
@@ -36,12 +36,33 @@ class JSendTest extends TestCase
     public function toStringProvider()
     {
         return [
-            'success' => [
+            'success with data' => [
                 'status' => JSend::STATUS_SUCCESS,
                 'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
                 'message' => null,
                 'code' => null,
                 'expected' => '{"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}}',
+            ],
+            'success without data' => [
+                'status' => JSend::STATUS_SUCCESS,
+                'data' => [],
+                'message' => null,
+                'code' => null,
+                'expected' => '{"status":"success","data":null}',
+            ],
+            'fail with data' => [
+                'status' => JSend::STATUS_FAIL,
+                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
+                'message' => 'This is an error',
+                'code' => 23,
+                'expected' => '{"status":"fail","data":{"post":{"id":1,"title":"foo","author":"bar"}}}',
+            ],
+            'fail without data' => [
+                'status' => JSend::STATUS_FAIL,
+                'data' => [],
+                'message' => 'This is an error',
+                'code' => 23,
+                'expected' => '{"status":"fail","data":null}',
             ],
             'error without code' => [
                 'status' => JSend::STATUS_ERROR,
@@ -57,37 +78,55 @@ class JSendTest extends TestCase
                 'code' => 23,
                 'expected' => '{"status":"error","message":"This is an error","code":23}',
             ],
-            'failed' => [
-                'status' => JSend::STATUS_FAIL,
-                'data' => [],
+            'error with data' => [
+                'status' => JSend::STATUS_ERROR,
+                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
+                'message' => 'This is an error',
+                'code' => null,
+                'expected' => '{"status":"error","data":{"post":{"id":1,"title":"foo","author":"bar"}},"message":"This is an error"}',
+            ],
+            'error with code and data' => [
+                'status' => JSend::STATUS_ERROR,
+                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
                 'message' => 'This is an error',
                 'code' => 23,
-                'expected' => '{"status":"fail","data":null}',
+                'expected' => '{"status":"error","data":{"post":{"id":1,"title":"foo","author":"bar"}},"message":"This is an error","code":23}',
             ],
         ];
     }
 
     /**
      * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The given status does not conform to Jsend specification
      */
-    public function testnewInstanceThrowsUnexpectedValueException()
+    public function testnewInstanceThrowsUnexpectedValueExceptionWithUnknownStatus()
     {
         new JSend('coucou', []);
     }
 
-
     /**
      * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The error message must be a non empty string
      */
-    public function testnewInstanceThrowsInvalidArgumentException()
+    public function testnewInstanceThrowsUnexpectedValueExceptionWithInvalidErrorMessage()
     {
         new JSend(JSend::STATUS_ERROR, []);
     }
 
     /**
      * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The error message must be a non empty string
      */
-    public function testnewInstanceThrowsInvalidArgumentExceptionWithWrongErrorCode()
+    public function testnewInstanceThrowsUnexpectedValueExceptionWithEmptyErrorMessage()
+    {
+        new JSend(JSend::STATUS_ERROR, [], '');
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The error code must be a integer or null
+     */
+    public function testnewInstanceThrowsUnexpectedValueExceptionWithInvalidErrorCode()
     {
         new JSend(JSend::STATUS_ERROR, [], 'error message', 'error code');
     }
@@ -96,6 +135,7 @@ class JSendTest extends TestCase
     {
         $response = JSend::success($this->dataSuccess);
         $this->assertEquals($this->JSendSuccess, $response);
+        $this->assertSame(JSend::STATUS_SUCCESS, $response->getStatus());
         $this->assertTrue($response->isSuccess());
         $this->assertFalse($response->isFail());
         $this->assertFalse($response->isError());
@@ -105,6 +145,7 @@ class JSendTest extends TestCase
     {
         $response = JSend::fail([]);
         $this->assertSame('{"status":"fail","data":null}', (string) $response);
+        $this->assertSame(JSend::STATUS_FAIL, $response->getStatus());
         $this->assertFalse($response->isSuccess());
         $this->assertTrue($response->isFail());
         $this->assertFalse($response->isError());
@@ -117,6 +158,7 @@ class JSendTest extends TestCase
             '{"status":"error","message":"This is an error","code":23}',
             (string) $response
         );
+        $this->assertSame(JSend::STATUS_ERROR, $response->getStatus());
         $this->assertFalse($response->isSuccess());
         $this->assertFalse($response->isFail());
         $this->assertTrue($response->isError());
@@ -129,6 +171,7 @@ class JSendTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessageRegExp /Unable to decode the submitted JSON string: \w+/
      */
     public function testCreateFromStringFailedWithInvalidJsonString()
     {
@@ -149,6 +192,7 @@ class JSendTest extends TestCase
 
     /**
      * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The given status does not conform to Jsend specification
      */
     public function testCreateFromArrayThrowsUnexpectedValueExceptionIfStatusIsMissing()
     {
@@ -197,17 +241,19 @@ class JSendTest extends TestCase
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid header name
      */
-    public function testOutputThrowsInvalidArgumentExceptionForInvalidHeaderName()
+    public function testSendThrowsInvalidArgumentExceptionForInvalidHeaderName()
     {
         $this->JSendSuccess->send(["fdsfqfsdsdqf\nfdsqfqsd" => 'bar']);
     }
 
     /**
      * @expectedException \InvalidArgumentException
+     * @expectedExceptionMessage Invalid header value
      * @dataProvider outputInvaludValueProvider
      */
-    public function testOutputThrowsInvalidArgumentExceptionForInvalidHeaderValue($headers)
+    public function testSendThrowsInvalidArgumentExceptionForInvalidHeaderValue($headers)
     {
         $this->JSendSuccess->send($headers);
     }
@@ -223,7 +269,7 @@ class JSendTest extends TestCase
     /**
      * @runInSeparateProcess
      */
-    public function testOuput()
+    public function testSend()
     {
         if (!function_exists('xdebug_get_headers')) {
             $this->markTestSkipped();
@@ -232,7 +278,7 @@ class JSendTest extends TestCase
         $this->JSendSuccess->send(['Access-Control-Allow-Origin' => '*']);
         ob_get_clean();
         $headers = \xdebug_get_headers();
-        $this->assertSame($headers[0], 'Access-Control-Allow-Origin: *');
-        $this->assertSame($headers[1], 'Content-Type: application/json;charset=utf-8');
+        $this->assertContains('Content-Type: application/json;charset=utf-8', $headers);
+        $this->assertContains('Access-Control-Allow-Origin: *', $headers);
     }
 }

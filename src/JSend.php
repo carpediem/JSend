@@ -29,14 +29,14 @@ class JSend implements JsonSerializable
      *
      * @var array
      */
-    protected $data = [];
+    protected $data;
 
     /**
      * JSend Error Message
      *
      * @var string
      */
-    protected $errorMessage = '';
+    protected $errorMessage;
 
     /**
      * JSend Error Code
@@ -86,14 +86,12 @@ class JSend implements JsonSerializable
      */
     protected function filterError($errorMessage, $errorCode)
     {
-        if (self::STATUS_ERROR != $this->status) {
+        if (self::STATUS_ERROR !== $this->status) {
             return;
         }
 
-        $this->errorMessage = $this->validateString($errorMessage);
-        if (!is_null($errorCode)) {
-            $this->errorCode = $this->validateInt($errorCode);
-        }
+        $this->errorMessage = $this->validateErrorMessage($errorMessage);
+        $this->errorCode = $this->validateErrorCode($errorCode);
     }
 
     /**
@@ -101,20 +99,20 @@ class JSend implements JsonSerializable
      *
      * @param mixed $str
      *
-     * @throws UnexpectedValueException If the data value is not a string
+     * @throws UnexpectedValueException If the data value is not a empty string
      *
      * @return string
      */
-    protected function validateString($str)
+    protected function validateErrorMessage($str)
     {
         if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
-            return (string) $str;
+            $str = (string) $str;
+            if ('' !== $str) {
+                return $str;
+            }
         }
 
-        throw new UnexpectedValueException(sprintf(
-            'Expected data to be a string; received "%s"',
-            (is_object($str) ? get_class($str) : gettype($str))
-        ));
+        throw new UnexpectedValueException('The error message must be a non empty string');
     }
 
     /**
@@ -126,20 +124,21 @@ class JSend implements JsonSerializable
      *
      * @return int
      */
-    protected function validateInt($int)
+    protected function validateErrorCode($int)
     {
+        if (null === $int) {
+            return $int;
+        }
+
         if (false === ($res = filter_var($int, FILTER_VALIDATE_INT))) {
-            throw new UnexpectedValueException(sprintf(
-                'Expected data to be a int; received "%s"',
-                (is_object($int) ? get_class($int) : gettype($int))
-            ));
+            throw new UnexpectedValueException('The error code must be a integer or null');
         }
 
         return $res;
     }
 
     /**
-     * Returns the JSend status
+     * Returns the status
      *
      * @return string
      */
@@ -149,7 +148,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns the JSend data
+     * Returns the data
      *
      * @return array
      */
@@ -159,7 +158,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns the JSend error message
+     * Returns the error message
      *
      * @return string
      */
@@ -169,7 +168,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns the JSend error code
+     * Returns the error code
      *
      * @return int|null
      */
@@ -179,7 +178,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns true if the status is success
+     * Returns whether the status is success
      *
      * @return bool
      */
@@ -189,7 +188,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns true if the status is fail
+     * Returns whether the status is fail
      *
      * @return bool
      */
@@ -199,7 +198,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns true if the status is error
+     * Returns whether the status is error
      *
      * @return bool
      */
@@ -225,7 +224,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Transcode the JSend object into an array
+     * Retuns the array representation
      *
      * @return array
      */
@@ -236,12 +235,12 @@ class JSend implements JsonSerializable
             return $arr;
         }
 
-        $arr['message'] = $this->errorMessage;
-        if (!is_null($this->errorCode)) {
+        $arr['message'] = (string) $this->errorMessage;
+        if (null !== $this->errorCode) {
             $arr['code'] = $this->errorCode;
         }
 
-        if (is_null($arr['data'])) {
+        if (null === $arr['data']) {
             unset($arr['data']);
         }
 
@@ -257,7 +256,7 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Encode and Send the JSend object as an HTTP Response
+     * Returns the generated HTTP Response
      *
      * @param array $headers Optional headers to add to the response
      *
@@ -265,12 +264,15 @@ class JSend implements JsonSerializable
      */
     public function send(array $headers = [])
     {
-        $headers = $this->filterHeaders($headers);
-        $headers[] = 'Content-Type: application/json;charset=utf-8';
+        $body = $this->__toString();
+        $headers = $this->filterHeaders(array_merge([
+            'Content-Type' => 'application/json;charset=utf-8',
+            'Content-Length' => strlen($body),
+        ], $headers));
         foreach ($headers as $header) {
             header($header);
         }
-        echo $this;
+        echo $body;
     }
 
     /**
@@ -379,7 +381,7 @@ class JSend implements JsonSerializable
      */
     public function withError($errorMessage, $errorCode = null)
     {
-        if ($errorMessage == $this->errorMessage && $errorCode == $this->errorCode) {
+        if ($errorMessage === $this->errorMessage && $errorCode === $this->errorCode) {
             return $this;
         }
 
@@ -440,8 +442,7 @@ class JSend implements JsonSerializable
         $raw = json_decode($json, true, $depth, $options);
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new InvalidArgumentException(sprintf(
-                'Unable to decode JSON to array in %s: %s',
-                __CLASS__,
+                'Unable to decode the submitted JSON string: %s',
                 json_last_error_msg()
             ));
         }
