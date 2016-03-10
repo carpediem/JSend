@@ -13,7 +13,7 @@ Install
 
 Install `JSend` using Composer.
 
-```
+```bash
 $ composer require carpediem/jsend
 ```
 
