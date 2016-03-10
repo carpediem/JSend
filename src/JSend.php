@@ -90,34 +90,52 @@ class JSend implements JsonSerializable
             return;
         }
 
-        $this->errorMessage = $this->validateType('string', 'is_string', $errorMessage);
+        $this->errorMessage = $this->validateString($errorMessage);
         if (!is_null($errorCode)) {
-            $this->errorCode = $this->validateType('numeric', 'is_numeric', $errorCode);
+            $this->errorCode = $this->validateInt($errorCode);
         }
     }
 
     /**
-     * Validate a Type
+     * Validate a string
      *
-     * @param string   $type
-     * @param callable $func
-     * @param mixed    $str
+     * @param mixed $str
      *
-     * @throws UnexpectedValueException If the data value does not conform to the specified type
+     * @throws UnexpectedValueException If the data value is not a string
      *
-     * @return mixed
+     * @return string
      */
-    protected function validateType($type, callable $func, $str)
+    protected function validateString($str)
     {
-        if ($func($str)) {
-            return $str;
+        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
+            return (string) $str;
         }
 
         throw new UnexpectedValueException(sprintf(
-            'Expected data to be a %s; received "%s"',
-            $type,
+            'Expected data to be a string; received "%s"',
             (is_object($str) ? get_class($str) : gettype($str))
         ));
+    }
+
+    /**
+     * Validate a integer
+     *
+     * @param mixed $int
+     *
+     * @throws UnexpectedValueException If the data value is not an integer
+     *
+     * @return int
+     */
+    protected function validateInt($int)
+    {
+        if (false === ($res = filter_var($int, FILTER_VALIDATE_INT))) {
+            throw new UnexpectedValueException(sprintf(
+                'Expected data to be a int; received "%s"',
+                (is_object($int) ? get_class($int) : gettype($int))
+            ));
+        }
+
+        return $res;
     }
 
     /**

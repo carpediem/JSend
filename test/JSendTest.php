@@ -84,6 +84,14 @@ class JSendTest extends TestCase
         new JSend(JSend::STATUS_ERROR, []);
     }
 
+    /**
+     * @expectedException \UnexpectedValueException
+     */
+    public function testnewInstanceThrowsInvalidArgumentExceptionWithWrongErrorCode()
+    {
+        new JSend(JSend::STATUS_ERROR, [], 'error message', 'error code');
+    }
+
     public function testSucces()
     {
         $response = JSend::success($this->dataSuccess);
