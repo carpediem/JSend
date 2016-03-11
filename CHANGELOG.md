@@ -2,6 +2,30 @@
 
 All notable changes to `Jsend` will be documented in this file.
 
+## 1.2.1 - 2016-09-11
+
+### Added
+
+- None
+
+### Fixed
+
+- Improve property validation
+    - empty message error now throw exception
+    - a message error can be an object implementing the `__toString` method
+
+- Improve HTTP response generation
+    - adding the `Content-Length` header
+    - adding overiding possibility for all header
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 1.2.0 - 2016-09-04
 
 ### Added
