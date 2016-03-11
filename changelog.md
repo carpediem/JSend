@@ -19,8 +19,6 @@ title: Changelog
     - adding the `Content-Length` header
     - adding overiding possibility for all header### Deprecated
 
-- None
-
 ### Removed
 
 - None
