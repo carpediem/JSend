@@ -24,45 +24,13 @@ public JSend::__construct(
 
 #### Parameters
 
-- `$status` a string representing one of JSend type or a `JSend` constant to ease managing the type
+- `$status` a **required** string representing one of JSend status or a `JSend` status constant:
     - `JSend::STATUS_SUCCESS` which correspond to `success`;
     - `JSend::STATUS_FAIL` which correspond to `fail`;
     - `JSend::STATUS_ERROR` which correspond to `error`;
-- `$data` an array representing the data to be send. *- optional parameter*
-- `$errorMessage` an **non-empty** string representing the error message. *- optional parameter*
-- `$errorCode` an integer representing the error code. *- optional parameter*
-
-#### Example
-
-```php
-<?php
-
-use Carpediem\JSend\JSend;
-
-$response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
-//or
-$responseBis = new JSend('error', $data, $errorMessage, $errorCode);
-```
-
-To ease `JSend` object creation named constructors are used to offer several ways to instantiate the object.
-
-### Depending on the response status
-
-#### Description
-
-```php
-<?php
-
-public static JSend::success(array $data): JSend
-public static JSend::fail(array $data): JSend
-public static JSend::error(string $errorMessage, int $errorCode = null): JSend
-```
-
-As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend compliant response can have 3 status. As such, 3 separate named constructors to ease creating these response type are introduced.
-
-#### Parameters
-
-All parameters are required except for the `$errorCode` parameter from the `JSend::error` method. When present, the `$errorCode` parameter **MUST** be a integer.
+- `$data` an array representing the data to be send. **optional**
+- `$errorMessage` a **non empty** string representing the error message. **required if the JSend status is `error`**
+- `$errorCode` an integer representing the error code. **optional**
 
 #### Example
 
@@ -80,7 +48,52 @@ $data = [
 ];
 
 $errorMessage = 'An error occurs';
-$errorCode = 42;
+$errorCode = 500;
+
+$response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
+//or
+$responseBis = new JSend('error', $data, $errorMessage, $errorCode);
+```
+
+To ease `JSend` instantiation named constructors can also be used.
+
+### Depending on the response status
+
+#### Description
+
+```php
+<?php
+
+public static JSend::success(array $data = []): JSend
+public static JSend::fail(array $data = []): JSend
+public static JSend::error(string $errorMessage, int $errorCode = null, array $data = []): JSend
+```
+
+As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend compliant response can have 3 status. As such, 3 separate named constructors to ease creating these response type are introduced.
+
+#### Parameters
+
+- `$data` an array representing the JSend associated data. **optional**
+- `$errorMessage` an non empty string representing the JSend error message **required** for `JSend::error`
+- `$errorCode` an integer representing the JSend error code **optional** for `JSend::error`.
+
+#### Example
+
+```php
+<?php
+
+use Carpediem\JSend\JSend;
+
+$data = [
+	'post' => [
+		'id' => 1,
+		'title' => 'foo',
+		'author' = 'bar'
+	],
+];
+
+$errorMessage = 'An error occurs';
+$errorCode = 500;
 
 $successResponse = JSend::success($data); //JSend success response object
 $failedResponse = JSend::fail($data); //JSend fail response object
@@ -94,7 +107,7 @@ $errorResponse = JSend::error($errorMessage, $errorCode, $data); //JSend error o
 ```php
 <?php
 
-public static JSend::createFromString(string $json): JSend
+public static JSend::createFromString(string $json, $depth = 512, $options = 0): JSend
 ```
 
 Returns a new `JSend` object from a Json compliant string.
@@ -102,8 +115,10 @@ Returns a new `JSend` object from a Json compliant string.
 #### Parameter
 
 - `$json` a valid JSON representation of a JSend response.
+- `$depth` user specified recursion depth.
+- `$options` bitmask of JSON decode options.
 
-<p class="message-warning">If the string is an invalid Json a <code>InvalidArgumentException</code> exception is thrown.</p>
+<p class="message-warning">If the string is an invalid JSON a <code>InvalidArgumentException</code> exception is thrown.</p>
 
 #### Example
 
@@ -368,7 +383,7 @@ Sends the JSend response by setting the following headers:
 
 #### Parameters
 
-- `$headers`: additional headers represented as an associative array where each key represents the header name and its corresponding value represents the header value. *- optional parameter*
+- `$headers`: additional headers represented as an associative array where each key represents the header name and its corresponding value represents the header value. **optional**
 
 You can use the optional `$header` parameter to override the default header value.
 
