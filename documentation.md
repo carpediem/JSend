@@ -28,9 +28,9 @@ public JSend::__construct(
     - `JSend::STATUS_SUCCESS` which correspond to `success`;
     - `JSend::STATUS_FAIL` which correspond to `fail`;
     - `JSend::STATUS_ERROR` which correspond to `error`;
-- `$data` an array representing the data to be send. **optional**
+- `$data` an array representing the data to be send.
 - `$errorMessage` a **non empty** string representing the error message. **required if the JSend status is `error`**
-- `$errorCode` an integer representing the error code. **optional**
+- `$errorCode` an integer representing the error code.
 
 #### Example
 
@@ -73,9 +73,9 @@ As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend co
 
 #### Parameters
 
-- `$data` an array representing the JSend associated data. **optional**
-- `$errorMessage` an non empty string representing the JSend error message **required** for `JSend::error`
-- `$errorCode` an integer representing the JSend error code **optional** for `JSend::error`.
+- `$data` an array representing the JSend associated data.
+- `$errorMessage` an non empty string representing the JSend error message for `JSend::error`
+- `$errorCode` an integer representing the JSend error code for `JSend::error`.
 
 #### Example
 
@@ -383,7 +383,7 @@ Sends the JSend response by setting the following headers:
 
 #### Parameters
 
-- `$headers`: additional headers represented as an associative array where each key represents the header name and its corresponding value represents the header value. **optional**
+- `$headers`: additional headers represented as an associative array where each key represents the header name and its corresponding value represents the header value.
 
 You can use the optional `$header` parameter to override the default header value.
 
