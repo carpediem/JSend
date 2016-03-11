@@ -105,6 +105,7 @@ footer p {
   background:transparent url(../img/cd-logo.svg) 10px center no-repeat scroll;
 }
 
+header a,
 footer a {
   color: #fff; text-decoration: none;
 }
@@ -112,7 +113,7 @@ footer a {
 menu li { display: inline-block; padding-right: 2em; }
 menu strong { font-size:2em; }
 menu a,
-menu li.top a:hover { border-bottom:3px solid transparent; color: #fff; text-decoration: none;}
+menu li.top a:hover { border-bottom:3px solid transparent; }
 
 menu a:hover,
 menu li.active a { border-bottom:3px solid #ef2a79; }
