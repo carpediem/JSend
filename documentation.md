@@ -369,6 +369,7 @@ public JSend::send(array $headers = []): string
 ```
 
 Sends the JSend response by setting the following headers:
+
 - `Content-Type` header set to `application/json` with a `UTF-8` charset.
 - `Content-Length` header set with the length of the JSend response.
 
