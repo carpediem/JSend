@@ -3,6 +3,26 @@ layout: default
 title: Changelog
 ---
 
+## 1.2.1
+
+### Added
+
+- None
+
+### Fixed
+
+- Improve property validation
+    - empty message error now throw exception
+    - a message error can be an object implementing the `__toString` method
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 1.2.0
 
 ### Added
