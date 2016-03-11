@@ -15,7 +15,9 @@ title: Changelog
     - empty message error now throw exception
     - a message error can be an object implementing the `__toString` method
 
-### Deprecated
+- Improve HTTP response generation
+    - adding the `Content-Length` header
+    - adding overiding possibility for all header### Deprecated
 
 - None
 
