@@ -144,7 +144,7 @@ public JSend::__construct(
     - `JSend::STATUS_FAIL` which correspond to `fail`;
     - `JSend::STATUS_ERROR` which correspond to `error`;
 - `$data` an array representing the data to be send. *- optional parameter*
-- `$errorMessage` an string representing the error message. *- optional parameter*
+- `$errorMessage` an **non-empty** string representing the error message. *- optional parameter*
 - `$errorCode` an integer representing the error code. *- optional parameter*
 
 #### Example
@@ -368,11 +368,15 @@ echo json_encode($response, JSON_PRETTY_PRINT);
 public JSend::send(array $headers = []): string
 ```
 
-Sends the JSend response with the `Content-Type` header set to `application/json` with a `UTF-8` charset.
+Sends the JSend response by setting the following headers:
+- `Content-Type` header set to `application/json` with a `UTF-8` charset.
+- `Content-Length` header set with the length of the JSend response.
 
 #### Parameters
 
 - `$headers`: additional headers represented as an associative array where each key represents the header name and its corresponding value represents the header value. *- optional parameter*
+
+You can use the optional `$header` parameter to override the default header value.
 
 <p class="message-warning">If any of the additional header submitted is malformed an <code>InvalidArgumentException</code> is thrown.</p>
 
