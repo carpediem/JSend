@@ -5,9 +5,46 @@ title: Documentation
 
 ## Creating the HTTP Response
 
-To ease `JSend` object creation named constructors are used to offer several ways to instantiate the object.
+### Using the default constructor
+
+#### Description
+
+```php
+<?php
+
+public JSend::__construct(
+	string $status,
+	array $data = null,
+	string $errorMessage = null,
+	int $errorCode = null
+): JSend
+```
 
 <p class="message-warning">If the data is not compliant with the specification a <code>UnexpectedValueException</code> exception is thrown.</p>
+
+#### Parameters
+
+- `$status` a string representing one of JSend type or a `JSend` constant to ease managing the type
+    - `JSend::STATUS_SUCCESS` which correspond to `success`;
+    - `JSend::STATUS_FAIL` which correspond to `fail`;
+    - `JSend::STATUS_ERROR` which correspond to `error`;
+- `$data` an array representing the data to be send. *- optional parameter*
+- `$errorMessage` an **non-empty** string representing the error message. *- optional parameter*
+- `$errorCode` an integer representing the error code. *- optional parameter*
+
+#### Example
+
+```php
+<?php
+
+use Carpediem\JSend\JSend;
+
+$response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
+//or
+$responseBis = new JSend('error', $data, $errorMessage, $errorCode);
+```
+
+To ease `JSend` object creation named constructors are used to offer several ways to instantiate the object.
 
 ### Depending on the response status
 
@@ -21,14 +58,7 @@ public static JSend::fail(array $data): JSend
 public static JSend::error(string $errorMessage, int $errorCode = null): JSend
 ```
 
-As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend compliant response can have 3 status:
-
-- `success`
-- `fail`
-- `error`
-
-
-The class comes with 3 separate named constructors to ease creating these response type.
+As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend compliant response can have 3 status. As such, 3 separate named constructors to ease creating these response type are introduced.
 
 #### Parameters
 
@@ -120,43 +150,6 @@ $arr = [
 	],
 ];
 $response = JSend::createFromArray($arr);
-```
-
-### Using the default constructor
-
-#### Description
-
-```php
-<?php
-
-public JSend::__construct(
-	string $status,
-	array $data = null,
-	string $errorMessage = null,
-	int $errorCode = null
-): JSend
-```
-
-#### Parameters
-
-- `$status` a string representing one of JSend type or a `JSend` constant to ease managing the type
-    - `JSend::STATUS_SUCCESS` which correspond to `success`;
-    - `JSend::STATUS_FAIL` which correspond to `fail`;
-    - `JSend::STATUS_ERROR` which correspond to `error`;
-- `$data` an array representing the data to be send. *- optional parameter*
-- `$errorMessage` an **non-empty** string representing the error message. *- optional parameter*
-- `$errorCode` an integer representing the error code. *- optional parameter*
-
-#### Example
-
-```php
-<?php
-
-use Carpediem\JSend\JSend;
-
-$response = new JSend(JSend::STATUS_ERROR, $data, $errorMessage, $errorCode);
-//or
-$responseBis = new JSend('error', $data, $errorMessage, $errorCode);
 ```
 
 ## Accessing the response properties
