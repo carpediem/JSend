@@ -26,7 +26,11 @@ class JSendTest extends TestCase
         $JSend = new JSend($status, $data, $message, $code);
         $this->assertSame($expected, (string) $JSend);
         $this->assertSame($status, $JSend->getStatus());
-        $this->assertSame($data, $JSend->getData());
+        if ($data instanceof \JsonSerializable) {
+            $this->assertSame($data->jsonSerialize(), $JSend->getData());
+        } else {
+            $this->assertSame($data, $JSend->getData());
+        }
         if (JSend::STATUS_ERROR === $status) {
             $this->assertSame((string) $message, $JSend->getErrorMessage());
             $this->assertSame($code, $JSend->getErrorCode());
@@ -49,6 +53,13 @@ class JSendTest extends TestCase
                 'message' => null,
                 'code' => null,
                 'expected' => '{"status":"success","data":null}',
+            ],
+            'success with JsonSerializable object' => [
+                'status' => JSend::STATUS_SUCCESS,
+                'data' => JSend::success(),
+                'message' => null,
+                'code' => null,
+                'expected' => '{"status":"success","data":{"status":"success","data":null}}',
             ],
             'fail with data' => [
                 'status' => JSend::STATUS_FAIL,
@@ -102,6 +113,15 @@ class JSendTest extends TestCase
     public function testnewInstanceThrowsUnexpectedValueExceptionWithUnknownStatus()
     {
         new JSend('coucou', []);
+    }
+
+    /**
+     * @expectedException \UnexpectedValueException
+     * @expectedExceptionMessage The data must be an array, a JsonSerializable object or null
+     */
+    public function testnewInstanceThrowsUnexpectedValueExceptionWithInvalidData()
+    {
+        new JSend('success', 3);
     }
 
     /**

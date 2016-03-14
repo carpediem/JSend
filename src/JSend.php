@@ -48,15 +48,15 @@ class JSend implements JsonSerializable
      * New Instance
      *
      * @param string $status
-     * @param array  $data
+     * @param mixed  $data
      * @param string $errorMessage
      * @param int    $errorCode
      */
-    public function __construct($status, array $data = null, $errorMessage = null, $errorCode = null)
+    public function __construct($status, $data = null, $errorMessage = null, $errorCode = null)
     {
         $this->status = $this->filterStatus($status);
-        $this->data = $data ?: [];
-        $this->filterError($errorMessage, $errorCode);
+        $this->data = $this->filterData($data);
+        list($this->errorMessage, $this->errorCode) = $this->filterError($errorMessage, $errorCode);
     }
 
     /**
@@ -79,6 +79,37 @@ class JSend implements JsonSerializable
     }
 
     /**
+     * Filter and Validate the JSend Data
+     *
+     * @param mixed $data The data can be
+     *                    <ul>
+     *                    <li>An Array
+     *                    <li>A JsonSerializable object
+     *                    <li>null
+     *                    </ul>
+     *
+     * @throws UnexpectedValueException If the input does not conform to one of the valid type
+     *
+     * @return array
+     */
+    protected function filterData($data)
+    {
+        if (null === $data) {
+            return [];
+        }
+
+        if ($data instanceof JsonSerializable) {
+            return $data->jsonSerialize();
+        }
+
+        if (is_array($data)) {
+            return $data;
+        }
+
+        throw new UnexpectedValueException('The data must be an array, a JsonSerializable object or null');
+    }
+
+    /**
      * Filter and Validate the JSend Error properties
      *
      * @param string $errorMessage
@@ -90,8 +121,7 @@ class JSend implements JsonSerializable
             return;
         }
 
-        $this->errorMessage = $this->validateErrorMessage($errorMessage);
-        $this->errorCode = $this->validateErrorCode($errorCode);
+        return [$this->validateErrorMessage($errorMessage), $this->validateErrorCode($errorCode)];
     }
 
     /**
@@ -130,11 +160,11 @@ class JSend implements JsonSerializable
             return $int;
         }
 
-        if (false === ($res = filter_var($int, FILTER_VALIDATE_INT))) {
-            throw new UnexpectedValueException('The error code must be a integer or null');
+        if (false !== ($res = filter_var($int, FILTER_VALIDATE_INT))) {
+            return $res;
         }
 
-        return $res;
+        throw new UnexpectedValueException('The error code must be a integer or null');
     }
 
     /**
@@ -355,12 +385,13 @@ class JSend implements JsonSerializable
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified data.
      *
-     * @param array $data The data to use with the new instance.
+     * @param mixed $data The data to use with the new instance.
      *
      * @return static A new instance with the specified data.
      */
-    public function withData(array $data)
+    public function withData($data)
     {
+        $data = $this->filterData($data);
         if ($data === $this->data) {
             return $this;
         }
@@ -381,21 +412,21 @@ class JSend implements JsonSerializable
      */
     public function withError($errorMessage, $errorCode = null)
     {
-        if ($errorMessage === $this->errorMessage && $errorCode === $this->errorCode) {
+        if ($this->isError() && $errorMessage === $this->errorMessage && $errorCode === $this->errorCode) {
             return $this;
         }
 
-        return new static($this->status, $this->data, $errorMessage, $errorCode);
+        return new static(static::STATUS_ERROR, $this->data, $errorMessage, $errorCode);
     }
 
     /**
      * Returns a successful JSend object with the specified data
      *
-     * @param array $data The data to use with the new instance.
+     * @param mixed $data The data to use with the new instance.
      *
      * @return static A new succesful instance with the specified data.
      */
-    public static function success(array $data = [])
+    public static function success($data = null)
     {
         return new static(static::STATUS_SUCCESS, $data);
     }
@@ -403,11 +434,11 @@ class JSend implements JsonSerializable
     /**
      * Returns a failed JSend object with the specified data
      *
-     * @param array $data The data to use with the new instance.
+     * @param mixed $data The data to use with the new instance.
      *
      * @return static A new failed instance with the specified data.
      */
-    public static function fail(array $data = [])
+    public static function fail($data = null)
     {
         return new static(static::STATUS_FAIL, $data);
     }

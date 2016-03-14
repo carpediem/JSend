@@ -2,6 +2,25 @@
 
 All notable changes to `Jsend` will be documented in this file.
 
+## 1.2.2 - 2016-09-14
+
+### Added
+
+- None
+
+### Fixed
+
+- The JSend data property can also be a `JsonSerializable` object
+- When using `JSend::withError` the JSend status of the return instance is set to `error`.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 1.2.1 - 2016-09-11
 
 ### Added
