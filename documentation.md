@@ -3,7 +3,7 @@ layout: default
 title: Documentation
 ---
 
-## Creating the HTTP Response
+## Creating the response
 
 ### Using the default constructor
 

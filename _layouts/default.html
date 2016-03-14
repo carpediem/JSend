@@ -23,12 +23,16 @@
         <header>
             <menu>
                 <ul>
-                    <li class="top"><a href="{{ site.baseurl }}/"><strong>{{ site.data.project.title }}</strong></a></li>
 {% for link in site.data.menu %}
                     <li{% if page.url == link[1] %} class="active"{% endif %}><a href="{{ site.baseurl }}{{ link[1] }}">{{ link[0] }}</a></li>
 {% endfor %}
                 </ul>
             </menu>
+{% if page.url == '/' %}
+        <div class="page-title"><h1>{{ site.data.project.title }} <em>{{ site.data.project.tagline }}</em></h1></div>
+{% else %}
+        <div class="page-title"><h1>{{ page.title }}</h1></div>
+{% endif %}
         </header>
         <main>
             <article>
@@ -38,5 +42,6 @@
         <footer>
             <p><a href="https://carpediem.github.io" title="Carpe Diem"><strong>CarpeDiem</strong></a></p>
         </footer>
+        <script src="http://carpediem.github.io/js/anchorList.js"></script>
     </body>
 </html>
