@@ -3,8 +3,6 @@ layout: default
 title: Contributing
 ---
 
-<p class="contribute">Contributions are <strong>welcomed</strong> and will be fully <strong>credited</strong>.<br> This project is open source, and it is made better in every possible way thanks to contributors like you. <a href="https://github.com/carpediem/jsend">View Source Code on Github</a></p>
-
 ## Bug Report
 
 We accept bug reports via issues created on [Github](https://github.com/carpediem/jsend/issues).

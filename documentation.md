@@ -14,7 +14,7 @@ title: Documentation
 
 public JSend::__construct(
 	string $status,
-	array $data = null,
+	mixed $data = null,
 	string $errorMessage = null,
 	int $errorCode = null
 ): JSend
@@ -28,7 +28,10 @@ public JSend::__construct(
     - `JSend::STATUS_SUCCESS` which correspond to `success`;
     - `JSend::STATUS_FAIL` which correspond to `fail`;
     - `JSend::STATUS_ERROR` which correspond to `error`;
-- `$data` an array representing the data to be send.
+- `$data` represents the data to be send. can be:
+    - an `array`
+    - a `JsonSerializable` object
+    - `null`
 - `$errorMessage` a **non empty** string representing the error message. **required if the JSend status is `error`**
 - `$errorCode` an integer representing the error code.
 
@@ -64,16 +67,16 @@ To ease `JSend` instantiation named constructors can also be used.
 ```php
 <?php
 
-public static JSend::success(array $data = []): JSend
-public static JSend::fail(array $data = []): JSend
-public static JSend::error(string $errorMessage, int $errorCode = null, array $data = []): JSend
+public static JSend::success(mixed $data = null): JSend
+public static JSend::fail(mixed $data = null): JSend
+public static JSend::error(string $errorMessage, int $errorCode = null, mixed $data = null): JSend
 ```
 
 As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend compliant response can have 3 status. As such, 3 separate named constructors to ease creating these response type are introduced.
 
 #### Parameters
 
-- `$data` an array representing the JSend associated data.
+- `$data` can be an `array`, a `JsonSerializable` object or `null` and represents the JSend associated data.
 - `$errorMessage` an non empty string representing the JSend error message for `JSend::error`
 - `$errorCode` an integer representing the JSend error code for `JSend::error`.
 
@@ -216,7 +219,7 @@ $response->getErrorCode(); //returns null
 <?php
 
 public JSend::withStatus(string $status): JSend
-public JSend::widthData(array $data): JSend
+public JSend::widthData(mixed $data): JSend
 public JSend::withError(string $errorMessage = null, int $errorCode = null): JSend
 ```
 
