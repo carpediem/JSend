@@ -20,7 +20,8 @@ public JSend::__construct(
 ): JSend
 ```
 
-<p class="message-warning">If the data is not compliant with the specification a <code>UnexpectedValueException</code> exception is thrown.</p>
+Returns a new `JSend` object.
+
 
 #### Parameters
 
@@ -32,8 +33,15 @@ public JSend::__construct(
     - an `array`
     - a `JsonSerializable` object
     - `null`
-- `$errorMessage` a **non empty** string representing the error message. **required if the JSend status is `error`**
+- `$errorMessage` a **non empty** string representing the error message.
 - `$errorCode` an integer representing the error code.
+
+<p class="message-notice">The <code>$errorMessage</code> parameter is required if you are creating a JSend error type response.</p>
+
+#### Exceptions
+
+- Emits an `OutOfRangeException` exception if the `$status` value is invalid.
+- Emits an `InvalidArgumentException` if the other parameters are invalid.
 
 #### Example
 
@@ -76,9 +84,11 @@ As per the [JSend specification](https://labs.omniti.com/labs/jsend), a JSend co
 
 #### Parameters
 
-- `$data` can be an `array`, a `JsonSerializable` object or `null` and represents the JSend associated data.
-- `$errorMessage` an non empty string representing the JSend error message for `JSend::error`
-- `$errorCode` an integer representing the JSend error code for `JSend::error`.
+<p class="message-warning">The parameters follow the same restrictions as <code>JSend::__construct</code> method.</p>
+
+#### Exceptions
+
+<p class="message-warning">Emits the same exceptions as <code>JSend::__construct</code> method.</p>
 
 #### Example
 
@@ -121,7 +131,11 @@ Returns a new `JSend` object from a Json compliant string.
 - `$depth` user specified recursion depth.
 - `$options` bitmask of JSON decode options.
 
-<p class="message-warning">If the string is an invalid JSON a <code>InvalidArgumentException</code> exception is thrown.</p>
+#### Exceptions
+
+- Emits an `InvalidArgumentException` if the string is an invalid JSON.
+- Emits an `OutOfRangeException` exception if the JSend status value is invalid or not found.
+- Emits an `InvalidArgumentException` if the other parameters are invalid or not found.
 
 #### Example
 
@@ -144,11 +158,15 @@ $response = JSend::createFromString($jsonString);
 public static JSend::createFromArray(array $data): JSend
 ```
 
-If you prefer working with arrays, `JSend::createFromArray` will return a new JSend object
+Returns a new `JSend` object
 
 #### Parameter
 
 - `$data` a valid array representation of a JSend response.
+
+#### Exceptions
+
+<p class="message-warning">Emits the same exceptions as <code>JSend::__construct</code> method.</p>
 
 #### Example
 
@@ -220,12 +238,20 @@ $response->getErrorCode(); //returns null
 
 public JSend::withStatus(string $status): JSend
 public JSend::widthData(mixed $data): JSend
-public JSend::withError(string $errorMessage = null, int $errorCode = null): JSend
+public JSend::withError(string $errorMessage, int $errorCode = null): JSend
 ```
 
-The parameters follow the same restrictions used for instantiating a `JSend` object.
+Returns a new `JSend` object.
 
-<p class="message-warning">If the modification is not possible or forbidden an <code>InvalidArgumentException</code> or an <code>UnexpectedValueException</code> will be thrown.</p>
+<p class="message-notice">When using <code>JSend::withError</code> on a non error type response, the returned object is a JSend error type response.</p>
+
+#### Parameters
+
+<p class="message-warning">The parameters follow the same restrictions as <code>JSend::__construct</code> method.</p>
+
+#### Exceptions
+
+<p class="message-warning">Emits the same exceptions as <code>JSend::__construct</code> method.</p>
 
 #### Example
 
@@ -390,7 +416,9 @@ Sends the JSend response by setting the following headers:
 
 You can use the optional `$header` parameter to override the default header value.
 
-<p class="message-warning">If any of the additional header submitted is malformed an <code>InvalidArgumentException</code> is thrown.</p>
+#### Exceptions
+
+Emits an `InvalidArgumentException` if any of the additional header  is malformed.
 
 #### Example
 

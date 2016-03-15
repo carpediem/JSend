@@ -30,7 +30,7 @@ Highlights
 Credits
 -------
 
-The package is built and used by [Carpediem](https://www.carpediem.fr)
+The package is built and used by [Carpediem](http://carpediem.github.io)
 
 License
 -------
