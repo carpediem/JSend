@@ -107,46 +107,46 @@ class JSendTest extends TestCase
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \OutOfRangeException
      * @expectedExceptionMessage The given status does not conform to Jsend specification
      */
-    public function testnewInstanceThrowsUnexpectedValueExceptionWithUnknownStatus()
+    public function testnewInstanceThrowsOutOfRangeExceptionWithUnknownStatus()
     {
         new JSend('coucou', []);
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The data must be an array, a JsonSerializable object or null
      */
-    public function testnewInstanceThrowsUnexpectedValueExceptionWithInvalidData()
+    public function testnewInstanceThrowsInvalidArgumentExceptionWithInvalidData()
     {
         new JSend('success', 3);
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The error message must be a non empty string
      */
-    public function testnewInstanceThrowsUnexpectedValueExceptionWithInvalidErrorMessage()
+    public function testnewInstanceThrowsInvalidArgumentExceptionWithInvalidErrorMessage()
     {
         new JSend(JSend::STATUS_ERROR, []);
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The error message must be a non empty string
      */
-    public function testnewInstanceThrowsUnexpectedValueExceptionWithEmptyErrorMessage()
+    public function testnewInstanceThrowsInvalidArgumentExceptionWithEmptyErrorMessage()
     {
         new JSend(JSend::STATUS_ERROR, [], '');
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \InvalidArgumentException
      * @expectedExceptionMessage The error code must be a integer or null
      */
-    public function testnewInstanceThrowsUnexpectedValueExceptionWithInvalidErrorCode()
+    public function testnewInstanceThrowsInvalidArgumentExceptionWithInvalidErrorCode()
     {
         new JSend(JSend::STATUS_ERROR, [], 'error message', 'error code');
     }
@@ -211,10 +211,10 @@ class JSendTest extends TestCase
     }
 
     /**
-     * @expectedException \UnexpectedValueException
+     * @expectedException \OutOfRangeException
      * @expectedExceptionMessage The given status does not conform to Jsend specification
      */
-    public function testCreateFromArrayThrowsUnexpectedValueExceptionIfStatusIsMissing()
+    public function testCreateFromArrayThrowsOutOfRangeExceptionIfStatusIsMissing()
     {
         JSend::createFromArray(['data' => ['post' => 1], 'code' => 404]);
     }

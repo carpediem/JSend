@@ -2,6 +2,24 @@
 
 All notable changes to `Jsend` will be documented in this file.
 
+## 1.2.3 - 2016-09-15
+
+### Added
+
+- None
+
+### Fixed
+
+- Bug Fix SPL Exception usage.
+
+### Deprecated
+
+- None
+
+### Removed
+
+- None
+
 ## 1.2.2 - 2016-09-14
 
 ### Added

@@ -4,7 +4,7 @@ namespace Carpediem\JSend;
 
 use InvalidArgumentException;
 use JsonSerializable;
-use UnexpectedValueException;
+use OutOfRangeException;
 
 /**
  * A Immutable Value Object Class to represent a JSend object
@@ -64,7 +64,7 @@ class JSend implements JsonSerializable
      *
      * @param string $status
      *
-     * @throws UnexpectedValueException If the status value does not conform to JSend Spec.
+     * @throws OutOfRangeException If the status value does not conform to JSend Spec.
      *
      * @return string
      */
@@ -75,7 +75,7 @@ class JSend implements JsonSerializable
             return $status;
         }
 
-        throw new UnexpectedValueException('The given status does not conform to Jsend specification');
+        throw new OutOfRangeException('The given status does not conform to Jsend specification');
     }
 
     /**
@@ -88,7 +88,7 @@ class JSend implements JsonSerializable
      *                    <li>null
      *                    </ul>
      *
-     * @throws UnexpectedValueException If the input does not conform to one of the valid type
+     * @throws InvalidArgumentException If the input does not conform to one of the valid type
      *
      * @return array
      */
@@ -106,7 +106,7 @@ class JSend implements JsonSerializable
             return $data;
         }
 
-        throw new UnexpectedValueException('The data must be an array, a JsonSerializable object or null');
+        throw new InvalidArgumentException('The data must be an array, a JsonSerializable object or null');
     }
 
     /**
@@ -129,7 +129,7 @@ class JSend implements JsonSerializable
      *
      * @param mixed $str
      *
-     * @throws UnexpectedValueException If the data value is not a empty string
+     * @throws InvalidArgumentException If the data value is not a empty string
      *
      * @return string
      */
@@ -142,7 +142,7 @@ class JSend implements JsonSerializable
             }
         }
 
-        throw new UnexpectedValueException('The error message must be a non empty string');
+        throw new InvalidArgumentException('The error message must be a non empty string');
     }
 
     /**
@@ -150,7 +150,7 @@ class JSend implements JsonSerializable
      *
      * @param mixed $int
      *
-     * @throws UnexpectedValueException If the data value is not an integer
+     * @throws InvalidArgumentException If the data value is not an integer
      *
      * @return int
      */
@@ -164,7 +164,7 @@ class JSend implements JsonSerializable
             return $res;
         }
 
-        throw new UnexpectedValueException('The error code must be a integer or null');
+        throw new InvalidArgumentException('The error code must be a integer or null');
     }
 
     /**
