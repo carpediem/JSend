@@ -1,15 +1,15 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Carpediem\JSend;
 
-use InvalidArgumentException;
 use JsonSerializable;
-use OutOfRangeException;
 
 /**
- * A Immutable Value Object Class to represent a JSend object
+ * A Immutable Value Object Class to represent a JSend object.
  */
-class JSend implements JsonSerializable
+final class JSend implements JsonSerializable
 {
     const STATUS_SUCCESS = 'success';
 
@@ -18,68 +18,141 @@ class JSend implements JsonSerializable
     const STATUS_FAIL = 'fail';
 
     /**
-     * JSend status
+     * JSend status.
      *
      * @var string
      */
-    protected $status;
+    private $status;
 
     /**
-     * JSend Data
+     * JSend Data.
      *
      * @var array
      */
-    protected $data;
+    private $data;
 
     /**
-     * JSend Error Message
+     * JSend Error Message.
      *
-     * @var string
+     * @var string|null
      */
-    protected $errorMessage;
+    private $errorMessage;
 
     /**
-     * JSend Error Code
+     * JSend Error Code.
+     *
      * @var int|null
      */
-    protected $errorCode;
+    private $errorCode;
 
     /**
-     * New Instance
+     * Returns a new instance from a JSON string.
      *
-     * @param string $status
-     * @param mixed  $data
-     * @param string $errorMessage
-     * @param int    $errorCode
+     * @throws Exception If the string can not be decode
      */
-    public function __construct($status, $data = null, $errorMessage = null, $errorCode = null)
+    public static function createFromString(string $json, int $depth = 512, int $options = 0): self
     {
+        $raw = json_decode($json, true, $depth, $options);
+        if (JSON_ERROR_NONE === json_last_error()) {
+            return static::createFromArray($raw);
+        }
+
+        throw new Exception(sprintf(
+            'Unable to decode the submitted JSON string: %s',
+            json_last_error_msg()
+        ));
+    }
+
+    /**
+     * Returns a new instance from an array.
+     */
+    public static function createFromArray(array $arr): self
+    {
+        return new self(
+            $arr['status'] ?? '',
+            $arr['data'] ?? null,
+            $arr['emessage'] ?? null,
+            $arr['code'] ?? null
+        );
+    }
+
+    /**
+     * Returns a successful JSend object with the specified data.
+     *
+     * @param null|mixed $data
+     */
+    public static function success($data = null): self
+    {
+        return new self(self::STATUS_SUCCESS, $data);
+    }
+
+    /**
+     * Returns a failed JSend object with the specified data.
+     *
+     * @param null|mixed $data
+     */
+    public static function fail($data = null): self
+    {
+        return new self(self::STATUS_FAIL, $data);
+    }
+
+    /**
+     * Returns a error JSend object with the specified error message and error code.
+     *
+     * @param null|mixed $data
+     */
+    public static function error(string $errorMessage, int $errorCode = null, $data = null): self
+    {
+        return new self(self::STATUS_ERROR, $data, $errorMessage, $errorCode);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public static function __set_state(array $properties)
+    {
+        return new self(
+            $properties['status'],
+            $properties['data'],
+            $properties['errorMessage'],
+            $properties['errorCode']
+        );
+    }
+
+    /**
+     * New Instance.
+     *
+     * @param null|mixed $data
+     * @param null|mixed $errorMessage
+     */
+    public function __construct(
+        string $status,
+        $data = null,
+        $errorMessage = null,
+        int $errorCode = null
+    ) {
         $this->status = $this->filterStatus($status);
         $this->data = $this->filterData($data);
         list($this->errorMessage, $this->errorCode) = $this->filterError($errorMessage, $errorCode);
     }
 
     /**
-     * Filter and Validate the JSend Status
+     * Filter and Validate the JSend Status.
      *
-     * @param string $status
-     *
-     * @throws OutOfRangeException If the status value does not conform to JSend Spec.
-     *
-     * @return string
+     * @throws Exception If the status value does not conform to JSend Spec.
      */
-    protected function filterStatus($status)
+    private function filterStatus(string $status): string
     {
-        $res = [self::STATUS_SUCCESS => 1, self::STATUS_ERROR => 1, self::STATUS_FAIL => 1];
+        static $res = [self::STATUS_SUCCESS => 1, self::STATUS_ERROR => 1, self::STATUS_FAIL => 1];
         if (isset($res[$status])) {
             return $status;
         }
 
-        throw new OutOfRangeException('The given status does not conform to Jsend specification');
+        throw new Exception('The given status does not conform to Jsend specification');
     }
 
     /**
-     * Filter and Validate the JSend Data
+     * Filter and Validate the JSend Data.
      *
      * @param mixed $data The data can be
      *                    <ul>
@@ -88,109 +161,76 @@ class JSend implements JsonSerializable
      *                    <li>null
      *                    </ul>
      *
-     * @throws InvalidArgumentException If the input does not conform to one of the valid type
-     *
-     * @return array
+     * @throws Exception If the input does not conform to one of the valid type
      */
-    protected function filterData($data)
+    private function filterData($data)
     {
         if (null === $data) {
             return [];
         }
 
         if ($data instanceof JsonSerializable) {
-            return $data->jsonSerialize();
+            return (array) $data->jsonSerialize();
         }
 
         if (is_array($data)) {
             return $data;
         }
 
-        throw new InvalidArgumentException('The data must be an array, a JsonSerializable object or null');
+        throw new Exception('The data must be an array, a JsonSerializable object or null');
     }
 
     /**
-     * Filter and Validate the JSend Error properties
-     *
-     * @param string $errorMessage
-     * @param int    $errorCode
+     * Filter and Validate the JSend Error properties.
      */
-    protected function filterError($errorMessage, $errorCode)
+    private function filterError($errorMessage, int $errorCode = null): array
     {
-        if (self::STATUS_ERROR !== $this->status) {
-            return;
+        if (self::STATUS_ERROR === $this->status) {
+            return [$this->filterErrorMessage($errorMessage), $errorCode];
         }
 
-        return [$this->validateErrorMessage($errorMessage), $this->validateErrorCode($errorCode)];
+        return [null, null];
     }
 
     /**
-     * Validate a string
+     * Validate a string.
      *
-     * @param mixed $str
-     *
-     * @throws InvalidArgumentException If the data value is not a empty string
-     *
-     * @return string
+     * @throws Exception If the data value is not a empty string
      */
-    protected function validateErrorMessage($str)
+    private function filterErrorMessage($str): string
     {
-        if (is_string($str) || (is_object($str) && method_exists($str, '__toString'))) {
-            $str = (string) $str;
-            if ('' !== $str) {
-                return $str;
-            }
+        if (!is_scalar($str) && !(is_object($str) && method_exists($str, '__toString'))) {
+            throw new Exception('The error message must be a scalar or a object implementing the __toString method.');
         }
 
-        throw new InvalidArgumentException('The error message must be a non empty string');
+        $str = (string) $str;
+        if ('' !== trim($str)) {
+            return $str;
+        }
+
+        throw new Exception('The error message can not be empty.');
     }
 
     /**
-     * Validate a integer
-     *
-     * @param mixed $int
-     *
-     * @throws InvalidArgumentException If the data value is not an integer
-     *
-     * @return int
+     * Returns the status.
      */
-    protected function validateErrorCode($int)
-    {
-        if (null === $int) {
-            return $int;
-        }
-
-        if (false !== ($res = filter_var($int, FILTER_VALIDATE_INT))) {
-            return $res;
-        }
-
-        throw new InvalidArgumentException('The error code must be a integer or null');
-    }
-
-    /**
-     * Returns the status
-     *
-     * @return string
-     */
-    public function getStatus()
+    public function getStatus(): string
     {
         return $this->status;
     }
 
     /**
-     * Returns the data
-     *
-     * @return array
+     * Returns the data.
      */
-    public function getData()
+    public function getData(): array
     {
         return $this->data;
     }
 
     /**
-     * Returns the error message
+     * Returns the error message.
      *
-     * @return string
+     * @return null|string
      */
     public function getErrorMessage()
     {
@@ -198,9 +238,9 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns the error code
+     * Returns the error code.
      *
-     * @return int|null
+     * @return null|int
      */
     public function getErrorCode()
     {
@@ -208,45 +248,31 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns whether the status is success
-     *
-     * @return bool
+     * Returns whether the status is success.
      */
-    public function isSuccess()
+    public function isSuccess(): bool
     {
         return self::STATUS_SUCCESS === $this->status;
     }
 
     /**
-     * Returns whether the status is fail
-     *
-     * @return bool
+     * Returns whether the status is fail.
      */
-    public function isFail()
+    public function isFail(): bool
     {
         return self::STATUS_FAIL === $this->status;
     }
 
     /**
-     * Returns whether the status is error
-     *
-     * @return bool
+     * Returns whether the status is error.
      */
-    public function isError()
+    public function isError(): bool
     {
         return self::STATUS_ERROR === $this->status;
     }
 
     /**
-     * @inheritdoc
-     */
-    public function __toString()
-    {
-        return json_encode($this, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
-    }
-
-    /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function jsonSerialize()
     {
@@ -254,11 +280,9 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Retuns the array representation
-     *
-     * @return array
+     * Returns the array representation.
      */
-    public function toArray()
+    public function toArray(): array
     {
         $arr = ['status' => $this->status, 'data' => $this->data ?: null];
         if (self::STATUS_ERROR !== $this->status) {
@@ -278,7 +302,15 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
+     */
+    public function __toString()
+    {
+        return json_encode($this->toArray(), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP);
+    }
+
+    /**
+     * {@inheritdoc}
      */
     public function __debugInfo()
     {
@@ -286,13 +318,14 @@ class JSend implements JsonSerializable
     }
 
     /**
-     * Returns the generated HTTP Response
+     * Output all the data of the JSend object.
      *
      * @param array $headers Optional headers to add to the response
      *
-     * @return string
+     * @return int Returns the number of characters read from the JSend object
+     *             and passed throught to the output
      */
-    public function send(array $headers = [])
+    public function send(array $headers = []): int
     {
         $body = $this->__toString();
         $headers = $this->filterHeaders(array_merge([
@@ -303,61 +336,53 @@ class JSend implements JsonSerializable
             header($header);
         }
         echo $body;
+
+        return strlen($body);
     }
 
     /**
-     * Filter Submitted Headers
+     * Filter Submitted Headers.
      *
      * @param array $headers a Collection of key/value headers
-     *
-     * @return array
      */
-    protected function filterHeaders(array $headers)
+    private function filterHeaders(array $headers): array
     {
         $formattedHeaders = [];
         foreach ($headers as $name => $value) {
-            $formattedHeaders[] = $this->validateHeaderName($name).': '.$this->validateHeaderValue($value);
+            $formattedHeaders[] = $this->validateHeaderName($name).': '.$this->validateHeaderValue((string) $value);
         }
 
         return $formattedHeaders;
     }
 
     /**
-     * Validate Header name
+     * Validate Header name.
      *
-     * @param string $name
-     *
-     * @throws InvalidArgumentException if the header name is invalid
-     *
-     * @return string
+     * @throws Exception if the header name is invalid
      */
-    protected function validateHeaderName($name)
+    private function validateHeaderName(string $name): string
     {
-        if (!preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name)) {
-            throw new InvalidArgumentException('Invalid header name');
+        if (preg_match('/^[a-zA-Z0-9\'`#$%&*+.^_|~!-]+$/', $name)) {
+            return $name;
         }
 
-        return $name;
+        throw new Exception('Invalid header name');
     }
 
     /**
-     * Validate Header value
+     * Validate Header value.
      *
-     * @param string $value
-     *
-     * @throws InvalidArgumentException if the header value is invalid
-     *
-     * @return string
+     * @throws Exception if the header value is invalid
      */
-    protected function validateHeaderValue($value)
+    private function validateHeaderValue(string $value): string
     {
-        if (preg_match("#(?:(?:(?<!\r)\n)|(?:\r(?!\n))|(?:\r\n(?![ \t])))#", $value)
-            || preg_match('/[^\x09\x0a\x0d\x20-\x7E\x80-\xFE]/', $value)
+        if (!preg_match("#(?:(?:(?<!\r)\n)|(?:\r(?!\n))|(?:\r\n(?![ \t])))#", $value)
+            && !preg_match('/[^\x09\x0a\x0d\x20-\x7E\x80-\xFE]/', $value)
         ) {
-            throw new InvalidArgumentException('Invalid header value');
+            return $value;
         }
 
-        return $value;
+        throw new Exception('Invalid header value');
     }
 
     /**
@@ -365,18 +390,14 @@ class JSend implements JsonSerializable
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified status.
-     *
-     * @param string $status The status to use with the new instance.
-     *
-     * @return static A new instance with the specified status.
      */
-    public function withStatus($status)
+    public function withStatus(string $status): self
     {
         if ($status === $this->status) {
             return $this;
         }
 
-        return new static($status, $this->data, $this->errorMessage, $this->errorCode);
+        return new self($status, $this->data, $this->errorMessage, $this->errorCode);
     }
 
     /**
@@ -384,19 +405,18 @@ class JSend implements JsonSerializable
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified data.
-     *
-     * @param mixed $data The data to use with the new instance.
-     *
-     * @return static A new instance with the specified data.
      */
-    public function withData($data)
+    public function withData($data): self
     {
         $data = $this->filterData($data);
         if ($data === $this->data) {
             return $this;
         }
 
-        return new static($this->status, $data, $this->errorMessage, $this->errorCode);
+        $clone = clone $this;
+        $clone->data = $data;
+
+        return $clone;
     }
 
     /**
@@ -404,103 +424,19 @@ class JSend implements JsonSerializable
      *
      * This method MUST retain the state of the current instance, and return
      * an instance that contains the specified error message and error code.
-     *
-     * @param string   $errorMessage The error message to use with the new instance.
-     * @param int|null $errorCode    The error code to use with the new instance.
-     *
-     * @return static A new instance with the specified status.
      */
-    public function withError($errorMessage, $errorCode = null)
+    public function withError($errorMessage, int $errorCode = null): self
     {
+        list($errorMessage, $errorCode) = $this->filterError($errorMessage, $errorCode);
         if ($this->isError() && $errorMessage === $this->errorMessage && $errorCode === $this->errorCode) {
             return $this;
         }
 
-        return new static(static::STATUS_ERROR, $this->data, $errorMessage, $errorCode);
-    }
+        $clone = clone $this;
+        $clone->errorMessage = $errorMessage;
+        $clone->errorCode = $errorCode;
+        $clone->status = self::STATUS_ERROR;
 
-    /**
-     * Returns a successful JSend object with the specified data
-     *
-     * @param mixed $data The data to use with the new instance.
-     *
-     * @return static A new succesful instance with the specified data.
-     */
-    public static function success($data = null)
-    {
-        return new static(static::STATUS_SUCCESS, $data);
-    }
-
-    /**
-     * Returns a failed JSend object with the specified data
-     *
-     * @param mixed $data The data to use with the new instance.
-     *
-     * @return static A new failed instance with the specified data.
-     */
-    public static function fail($data = null)
-    {
-        return new static(static::STATUS_FAIL, $data);
-    }
-
-    /**
-     * Returns a error JSend object with the specified error message and error code.
-     *
-     * @param string   $errorMessage The error message to use with the new instance.
-     * @param int|null $errorCode    The error code to use with the new instance.
-     * @param array    $data         The optional data to use with the new instance.
-     *
-     * @return static A new failed instance with the specified data.
-     */
-    public static function error($errorMessage, $errorCode = null, $data = null)
-    {
-        return new static(static::STATUS_ERROR, $data, $errorMessage, $errorCode);
-    }
-
-    /**
-     * Returns a new instance from a JSON string
-     *
-     * @param string $json    The string being decoded
-     * @param int    $depth   User specified recursion depth.
-     * @param int    $options Bitmask of JSON decode options
-     *
-     * @throws InvalidArgumentException If the string can not be decode
-     *
-     * @return static
-     */
-    public static function createFromString($json, $depth = 512, $options = 0)
-    {
-        $raw = json_decode($json, true, $depth, $options);
-        if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new InvalidArgumentException(sprintf(
-                'Unable to decode the submitted JSON string: %s',
-                json_last_error_msg()
-            ));
-        }
-
-        return static::createFromArray($raw);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public static function __set_state(array $properties)
-    {
-        return static::createFromArray($properties);
-    }
-
-    /**
-     * Returns a new instance from an array
-     *
-     * @param array $arr The array to build a new JSend object with
-     *
-     * @return static
-     */
-    public static function createFromArray(array $arr)
-    {
-        $defaultValues = ['status' => null, 'data' => null, 'message' => null, 'code' => null];
-        $arr = array_replace($defaultValues, array_intersect_key($arr, $defaultValues));
-
-        return new static($arr['status'], $arr['data'], $arr['message'], $arr['code']);
+        return $clone;
     }
 }
