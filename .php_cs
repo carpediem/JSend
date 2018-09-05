@@ -1,5 +1,12 @@
 <?php
 
+$header = <<<'EOF'
+This file is part of Carpediem\JSend, a JSend Response object
+
+@copyright Carpe Diem. All rights reserved
+@license MIT See LICENSE.md at the root of the project for more info
+EOF;
+
 $finder = PhpCsFixer\Finder::create()
     ->in(__DIR__.'/src')
     ->in(__DIR__.'/test')
@@ -10,6 +17,12 @@ return PhpCsFixer\Config::create()
         '@PSR2' => true,
         'array_syntax' => ['syntax' => 'short'],
         'concat_space' => ['spacing' => 'none'],
+        'header_comment' => [
+            'commentType' => 'PHPDoc',
+            'header' => $header,
+            'location' => 'after_open',
+            'separate' => 'both',
+        ],
         'new_with_braces' => true,
         'no_blank_lines_after_phpdoc' => true,
         'no_empty_phpdoc' => true,

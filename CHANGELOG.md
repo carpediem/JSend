@@ -2,6 +2,25 @@
 
 All notable changes to `Jsend` will be documented in this file.
 
+## 2.0.0 - TBD
+
+### Added
+
+- JSend\Exception as an Exception marker of all the package Exception
+
+### Fixed
+
+- JSend::toArray
+- JSend::send returns type
+
+### Deprecated
+
+- None
+
+### Removed
+
+- Remove PHP5 support
+
 ## 1.2.3 - 2016-09-15
 
 ### Added
