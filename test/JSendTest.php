@@ -89,6 +89,13 @@ class JSendTest extends TestCase
                 'code' => null,
                 'expected' => '{"status":"error","message":"This is an error"}',
             ],
+            'error without 0 code' => [
+                'status' => JSend::STATUS_ERROR,
+                'data' => [],
+                'message' => 'This is an error',
+                'code' => 0,
+                'expected' => '{"status":"error","message":"This is an error","code":0}',
+            ],
             'error with code' => [
                 'status' => JSend::STATUS_ERROR,
                 'data' => [],

@@ -9,6 +9,7 @@ use const JSON_ERROR_NONE;
 use const JSON_HEX_AMP;
 use const JSON_HEX_APOS;
 use const JSON_HEX_QUOT;
+use function array_filter;
 use function array_merge;
 use function header;
 use function is_array;
@@ -75,10 +76,7 @@ final class JSend implements JsonSerializable
             return static::createFromArray($raw);
         }
 
-        throw new Exception(sprintf(
-            'Unable to decode the submitted JSON string: %s',
-            json_last_error_msg()
-        ));
+        throw new Exception(sprintf('Unable to decode the submitted JSON string: %s', json_last_error_msg()));
     }
 
     /**
@@ -86,12 +84,7 @@ final class JSend implements JsonSerializable
      */
     public static function createFromArray(array $arr): self
     {
-        return new self(
-            $arr['status'] ?? '',
-            $arr['data'] ?? null,
-            $arr['emessage'] ?? null,
-            $arr['code'] ?? null
-        );
+        return new self($arr['status'] ?? '', $arr['data'] ?? null, $arr['message'] ?? null, $arr['code'] ?? null);
     }
 
     /**
@@ -119,7 +112,7 @@ final class JSend implements JsonSerializable
      *
      * @param null|mixed $data
      */
-    public static function error(string $errorMessage, int $errorCode = null, $data = null): self
+    public static function error($errorMessage, int $errorCode = null, $data = null): self
     {
         return new self(self::STATUS_ERROR, $data, $errorMessage, $errorCode);
     }
@@ -127,14 +120,9 @@ final class JSend implements JsonSerializable
     /**
      * {@inheritdoc}
      */
-    public static function __set_state(array $properties)
+    public static function __set_state(array $prop)
     {
-        return new self(
-            $properties['status'],
-            $properties['data'],
-            $properties['errorMessage'],
-            $properties['errorCode']
-        );
+        return new self($prop['status'], $prop['data'], $prop['errorMessage'], $prop['errorCode']);
     }
 
     /**
@@ -181,7 +169,7 @@ final class JSend implements JsonSerializable
      *
      * @throws Exception If the input does not conform to one of the valid type
      */
-    private function filterData($data)
+    private function filterData($data): array
     {
         if (null === $data) {
             return [];
@@ -307,16 +295,14 @@ final class JSend implements JsonSerializable
             return $arr;
         }
 
+        $filter = function ($value): bool {
+            return null !== $value;
+        };
+
         $arr['message'] = (string) $this->errorMessage;
-        if (null !== $this->errorCode) {
-            $arr['code'] = $this->errorCode;
-        }
+        $arr['code'] = $this->errorCode;
 
-        if (null === $arr['data']) {
-            unset($arr['data']);
-        }
-
-        return $arr;
+        return array_filter($arr, $filter);
     }
 
     /**
@@ -386,7 +372,7 @@ final class JSend implements JsonSerializable
             return $name;
         }
 
-        throw new Exception('Invalid header name');
+        throw new Exception(sprintf('Invalid header name: %s', $name));
     }
 
     /**
@@ -402,7 +388,7 @@ final class JSend implements JsonSerializable
             return $value;
         }
 
-        throw new Exception('Invalid header value');
+        throw new Exception(sprintf('Invalid header value: %s', $value));
     }
 
     /**
