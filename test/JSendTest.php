@@ -6,6 +6,10 @@ use Carpediem\JSend\Exception;
 use Carpediem\JSend\JSend;
 use JsonSerializable;
 use PHPUnit\Framework\TestCase;
+use function function_exists;
+use function ob_get_clean;
+use function ob_start;
+use function var_export;
 
 class JSendTest extends TestCase
 {

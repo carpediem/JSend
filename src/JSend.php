@@ -5,6 +5,24 @@ declare(strict_types=1);
 namespace Carpediem\JSend;
 
 use JsonSerializable;
+use const JSON_ERROR_NONE;
+use const JSON_HEX_AMP;
+use const JSON_HEX_APOS;
+use const JSON_HEX_QUOT;
+use function array_merge;
+use function header;
+use function is_array;
+use function is_object;
+use function is_scalar;
+use function json_decode;
+use function json_encode;
+use function json_last_error;
+use function json_last_error_msg;
+use function method_exists;
+use function preg_match;
+use function sprintf;
+use function strlen;
+use function trim;
 
 /**
  * A Immutable Value Object Class to represent a JSend object.
@@ -328,16 +346,18 @@ final class JSend implements JsonSerializable
     public function send(array $headers = []): int
     {
         $body = $this->__toString();
+        $length = strlen($body);
         $headers = $this->filterHeaders(array_merge([
             'Content-Type' => 'application/json;charset=utf-8',
-            'Content-Length' => strlen($body),
+            'Content-Length' => (string) $length,
         ], $headers));
+
         foreach ($headers as $header) {
             header($header);
         }
         echo $body;
 
-        return strlen($body);
+        return $length;
     }
 
     /**
@@ -349,7 +369,7 @@ final class JSend implements JsonSerializable
     {
         $formattedHeaders = [];
         foreach ($headers as $name => $value) {
-            $formattedHeaders[] = $this->validateHeaderName($name).': '.$this->validateHeaderValue((string) $value);
+            $formattedHeaders[] = $this->validateHeaderName($name).': '.$this->validateHeaderValue($value);
         }
 
         return $formattedHeaders;
