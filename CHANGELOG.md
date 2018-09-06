@@ -10,8 +10,7 @@ All notable changes to `Jsend` will be documented in this file.
 
 ### Fixed
 
-- JSend::toArray
-- JSend::send returns type
+- None
 
 ### Deprecated
 
@@ -20,6 +19,7 @@ All notable changes to `Jsend` will be documented in this file.
 ### Removed
 
 - Remove PHP5 support
+- Relying on SPL Exception
 
 ## 1.2.3 - 2016-09-15
 

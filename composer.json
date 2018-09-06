@@ -25,13 +25,13 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Carpediem\\JSend\\Test\\": "test"
+            "Carpediem\\JSend\\Test\\": "tests"
         }
     },
     "scripts": {
         "phpcs": "php-cs-fixer fix -v --diff --dry-run --allow-risky=yes;",
         "phpstan-src": "phpstan analyse -l 7 -c phpstan.src.neon src",
-        "phpstan-tests": "phpstan analyse -l 7 -c phpstan.tests.neon test",
+        "phpstan-tests": "phpstan analyse -l 7 -c phpstan.tests.neon tests",
         "phpstan": [
             "@phpstan-src",
             "@phpstan-tests"
