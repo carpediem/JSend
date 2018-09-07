@@ -2,7 +2,7 @@
 
 All notable changes to `Jsend` will be documented in this file.
 
-## 2.0.0 - TBD
+## 2.0.0 - 2018-09-07
 
 ### Added
 
