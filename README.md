@@ -4,7 +4,6 @@ JSend
 [![Latest Version](https://img.shields.io/github/release/carpediem/jsend.svg?style=flat-square)](https://github.com/carpediem/jsend/releases)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE.md)
 [![Build Status](https://img.shields.io/travis/carpediem/JSend/master.svg?style=flat-square)](https://travis-ci.org/carpediem/JSend)
-[![HHVM Status](https://img.shields.io/hhvm/carpediem/jsend.svg?style=flat-square)](http://hhvm.h4cc.de/package/carpediem/jsend)
 [![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/carpediem/jsend.svg?style=flat-square)](https://scrutinizer-ci.com/g/carpediem/jsend/code-structure)
 [![Quality Score](https://img.shields.io/scrutinizer/g/carpediem/jsend.svg?style=flat-square)](https://scrutinizer-ci.com/g/carpediem/jsend)
 [![Total Downloads](https://img.shields.io/packagist/dt/carpediem/jsend.svg?style=flat-square)](https://packagist.org/packages/carpediem/jsend)
