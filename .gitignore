@@ -2,3 +2,7 @@ vendor
 build
 docs
 .idea
+composer.lock
+docs/_site
+.php_cs.cache
+_site

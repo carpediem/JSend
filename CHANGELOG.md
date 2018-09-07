@@ -2,6 +2,30 @@
 
 All notable changes to `Jsend` will be documented in this file.
 
+## 2.0.0 - TBD
+
+### Added
+
+- `JSend\Exception` as an Exception marker of all the package Exception
+- `JSend\JSend::fromJSON` to create an object from a JSON string or a `JsonSerializable` object
+- `JSend\JSend::fromArray` to replace `JSend\JSend::createFromArray`
+
+### Fixed
+
+- None
+
+### Deprecated
+
+- None
+
+### Removed
+
+- Remove PHP5 support
+- Relying on PHP SPL Exception
+- `JSend::createFromString`
+- `JSend::createFromArray`
+- accessing the constructor you must use one of the named constructors
+
 ## 1.2.3 - 2016-09-15
 
 ### Added
