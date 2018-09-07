@@ -117,22 +117,29 @@ $response->isFail();          // boolean
 $response->isError();         // boolean
 ```
 
-- `JSend::getErrorMessage` returns `null` when `JSend::geStatus` is different that 'error';
+- `JSend::getErrorMessage` returns `null` when `JSend::getStatus` is not equal to `error`;
 - `JSend::getErrorCode` is an integer or `null`;
-
 
 ### Manipulations
 
 ```php
 $response = JSend::success(['post' => 1234]);
-(string) $response;           // returns {"status": "success", "data": {"post": 1234}}
-json_encode($response, JSON_PRETTY_PRINT); // the JSend object is usable directly with PHP json_encode function
+(string) $response;  // returns {"status": "success", "data": {"post": 1234}}
+echo json_encode($response, JSON_PRETTY_PRINT);
+// returns
+// {
+//    "status": "success",
+//    "data": {
+//        "post": 1234
+//    }
+//}
 $response->toArray();
-// returns [
-//     'status' => 'success',
-//     'data' => [
-//         'post' => 1234,
-//     ]
+// returns
+// [
+//    'status' => 'success',
+//    'data' => [
+//        'post' => 1234,
+//    ]
 // ]
 ```
 
@@ -152,7 +159,9 @@ echo $failResponse;  // returns {"status": "fail"}
 echo $errorResponse; // returns {"status": "error", "message": "This is an error", code: 404}
 ```
 
-**`JSend::withData` accepts the `null` value, an `array` or a `JsonSerializable` object whose `jsonSerialize` method returns an `array`**
+**`JSend::withData` accepts the `null` value, an `array` or a `JsonSerializable` objects whose `jsonSerialize` method returns an `array`**
+
+**`JSend::withError` `$errorCode` parameter is optional**
 
 ### Creating an HTTP Response
 
@@ -162,6 +171,9 @@ $response = JSend::fail(['post' => 1234]);
 $response->send(['Access-Control-Allow-Origin' => '*']);
 die;
 ```
+
+`JSend::send` accepts additional headers in form of key/value pairs.
+
 
 Testing
 -------
