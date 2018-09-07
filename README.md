@@ -14,7 +14,7 @@ JSend is a simple library to ease the use of [JSend compliant](https://labs.omni
 ```php
 <?php
 
-use Carpediem\JSend;
+use Carpediem\JSend\JSend;
 
 $data = [
     'post' => [
@@ -82,15 +82,19 @@ final class JSend implements JsonSerializable
 }
 ```
 
-### Create new JSend objects
-
-Use named constructors to instantiate a `JSend` object creation
+### Class Import
 
 ```php
 <?php
 
-use Carpediem\JSend;
+use Carpediem\JSend\JSend;
+```
 
+### Create new instances
+
+Use named constructors to instantiate a `JSend` object creation
+
+```php
 $success = JSend::success($data);
 $fail = JSend::fail($data);
 $error = JSend::error('Not Found', 404, $data);
@@ -100,7 +104,7 @@ $altResponse = JSend::fromArray(['data' => ['post' => 1], 'code' => 404, 'messag
 
 If the object can not be created a `Carpediem\JSend\Exception` will be thrown.
 
-### Accessing the `JSend` object properties
+### Access properties
 
 ```php
 $response = JSend::error('Not Found', 404, ['post' => 1234]);
@@ -114,10 +118,10 @@ $response->isError();         // boolean
 ```
 
 - `JSend::getErrorMessage` returns `null` when `JSend::geStatus` is different that 'error';
-- `JSend::getErrorCode` can be `null`;
+- `JSend::getErrorCode` is an integer or `null`;
 
 
-### Manipulating the `JSend` object
+### Manipulations
 
 ```php
 $response = JSend::success(['post' => 1234]);
@@ -132,7 +136,7 @@ $response->toArray();
 // ]
 ```
 
-### Update the JSend object
+### Updates
 
 The `JSend` object is immutable so any changes to the object will return a new object
 
@@ -150,19 +154,19 @@ echo $errorResponse; // returns {"status": "error", "message": "This is an error
 
 **`JSend::withData` accepts the `null` value, an `array` or a `JsonSerializable` object whose `jsonSerialize` method returns an `array`**
 
-### Sending the `JSend` object
+### Creating an HTTP Response
 
 ```php
 header('HTTP/1.1 404 Not Found'); // don't forget to add the HTTP header
 $response = JSend::fail(['post' => 1234]);
 $response->send(['Access-Control-Allow-Origin' => '*']);
-die
+die;
 ```
 
 Testing
 -------
 
-`JSend` has a :
+the library has a:
 
 - a [PHPUnit](https://phpunit.de) test suite
 - a coding style compliance test suite using [PHP CS Fixer](http://cs.sensiolabs.org/).
