@@ -13,6 +13,7 @@ use Carpediem\JSend\Exception;
 use Carpediem\JSend\JSend;
 use JsonSerializable;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 use function function_exists;
 use function ob_get_clean;
 use function ob_start;
@@ -35,33 +36,42 @@ class JSendTest extends TestCase
     /**
      * @dataProvider toStringProvider
      */
-    public function testToString($status, $data, $message, $code, $expected)
-    {
-        $JSend = new JSend($status, $data, $message, $code);
-        self::assertSame($expected, (string) $JSend);
-        self::assertSame($status, $JSend->getStatus());
+    public function testToString(
+        JSend $response,
+        string $status,
+        $data,
+        $message,
+        int $code = null,
+        string $expected
+    ) {
+        self::assertSame($expected, (string) $response);
+        self::assertSame($status, $response->getStatus());
         if ($data instanceof JsonSerializable) {
-            self::assertSame($data->jsonSerialize(), $JSend->getData());
-        } else {
-            self::assertSame($data, $JSend->getData());
+            $data = $data->jsonSerialize();
         }
+
+        self::assertSame($data, $response->getData());
         if (JSend::STATUS_ERROR === $status) {
-            self::assertSame((string) $message, $JSend->getErrorMessage());
-            self::assertSame($code, $JSend->getErrorCode());
+            self::assertSame((string) $message, $response->getErrorMessage());
+            self::assertSame($code, $response->getErrorCode());
         }
     }
 
     public function toStringProvider()
     {
+        $data = ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']];
+
         return [
             'success with data' => [
+                'obj' => Jsend::success($data),
                 'status' => JSend::STATUS_SUCCESS,
-                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
+                'data' => $data,
                 'message' => null,
                 'code' => null,
                 'expected' => '{"status":"success","data":{"post":{"id":1,"title":"foo","author":"bar"}}}',
             ],
             'success without data' => [
+                'obj' => Jsend::success([]),
                 'status' => JSend::STATUS_SUCCESS,
                 'data' => [],
                 'message' => null,
@@ -69,6 +79,7 @@ class JSendTest extends TestCase
                 'expected' => '{"status":"success","data":null}',
             ],
             'success with JsonSerializable object' => [
+                'obj' => Jsend::success(JSend::success()),
                 'status' => JSend::STATUS_SUCCESS,
                 'data' => JSend::success(),
                 'message' => null,
@@ -76,13 +87,15 @@ class JSendTest extends TestCase
                 'expected' => '{"status":"success","data":{"status":"success","data":null}}',
             ],
             'fail with data' => [
+                'obj' => Jsend::fail($data),
                 'status' => JSend::STATUS_FAIL,
-                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
+                'data' => $data,
                 'message' => 'This is an error',
                 'code' => 23,
                 'expected' => '{"status":"fail","data":{"post":{"id":1,"title":"foo","author":"bar"}}}',
             ],
             'fail without data' => [
+                'obj' => Jsend::fail(),
                 'status' => JSend::STATUS_FAIL,
                 'data' => [],
                 'message' => 'This is an error',
@@ -90,6 +103,7 @@ class JSendTest extends TestCase
                 'expected' => '{"status":"fail","data":null}',
             ],
             'error without code' => [
+                'obj' => Jsend::error('This is an error'),
                 'status' => JSend::STATUS_ERROR,
                 'data' => [],
                 'message' => 'This is an error',
@@ -97,6 +111,7 @@ class JSendTest extends TestCase
                 'expected' => '{"status":"error","message":"This is an error"}',
             ],
             'error without 0 code' => [
+                'obj' => Jsend::error('This is an error', 0),
                 'status' => JSend::STATUS_ERROR,
                 'data' => [],
                 'message' => 'This is an error',
@@ -104,6 +119,7 @@ class JSendTest extends TestCase
                 'expected' => '{"status":"error","message":"This is an error","code":0}',
             ],
             'error with code' => [
+                'obj' => Jsend::error('This is an error', 23),
                 'status' => JSend::STATUS_ERROR,
                 'data' => [],
                 'message' => 'This is an error',
@@ -111,15 +127,17 @@ class JSendTest extends TestCase
                 'expected' => '{"status":"error","message":"This is an error","code":23}',
             ],
             'error with data' => [
+                'obj' => Jsend::error('This is an error', null, $data),
                 'status' => JSend::STATUS_ERROR,
-                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
+                'data' => $data,
                 'message' => 'This is an error',
                 'code' => null,
                 'expected' => '{"status":"error","data":{"post":{"id":1,"title":"foo","author":"bar"}},"message":"This is an error"}',
             ],
             'error with code and data' => [
+                'obj' => Jsend::error('This is an error', 23, $data),
                 'status' => JSend::STATUS_ERROR,
-                'data' => ['post' => ['id' => 1, 'title' => 'foo', 'author' => 'bar']],
+                'data' => $data,
                 'message' => 'This is an error',
                 'code' => 23,
                 'expected' => '{"status":"error","data":{"post":{"id":1,"title":"foo","author":"bar"}},"message":"This is an error","code":23}',
@@ -127,32 +145,43 @@ class JSendTest extends TestCase
         ];
     }
 
-    public function testnewInstanceThrowsOutOfRangeExceptionWithUnknownStatus()
+    public function testInstanceAcceptsJsonSerializableObject()
     {
-        self::expectException(Exception::class);
-        self::expectExceptionMessage('The given status does not conform to Jsend specification');
-        new JSend('coucou', []);
+        self::assertSame($this->JSendSuccess->toArray(), JSend::success($this->JSendSuccess)->getData());
     }
 
-    public function testnewInstanceThrowsInvalidArgumentExceptionWithInvalidData()
+    public function testnewInstanceThrowsExceptionWithInvalidData()
     {
-        self::expectException(Exception::class);
+        self::expectException(TypeError::class);
         self::expectExceptionMessage('The data must be an array, a JsonSerializable object or null');
-        new JSend('success', 3);
+        JSend::success(3);
     }
 
-    public function testnewInstanceThrowsInvalidArgumentExceptionWithInvalidErrorMessage()
+    public function testnewInstanceThrowsExceptionWithInvalidData2()
+    {
+        $mock = new class() implements JsonSerializable {
+            public function jsonSerialize()
+            {
+                return 3;
+            }
+        };
+        self::expectException(Exception::class);
+        self::expectExceptionMessage('The JsonSerializable object must return an array integer returned');
+        JSend::success($mock);
+    }
+
+    public function testnewInstanceThrowsExceptionWithInvalidErrorMessage()
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('The error message must be a scalar or a object implementing the __toString method.');
-        new JSend(JSend::STATUS_ERROR, []);
+        JSend::error([]);
     }
 
-    public function testnewInstanceThrowsInvalidArgumentExceptionWithEmptyErrorMessage()
+    public function testnewInstanceThrowsExceptionWithEmptyErrorMessage()
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('The error message can not be empty.');
-        new JSend(JSend::STATUS_ERROR, [], '');
+        JSend::error('     ');
     }
 
     public function testSucces()
@@ -188,16 +217,23 @@ class JSendTest extends TestCase
         self::assertTrue($response->isError());
     }
 
-    public function testCreateFromString()
+    public function testFromJSON()
     {
-        self::assertEquals($this->JSendSuccess, JSend::createFromString($this->JSendSuccessJson));
+        self::assertEquals($this->JSendSuccess, JSend::fromJSON($this->JSendSuccessJson));
+        self::assertEquals($this->JSendSuccess, JSend::fromJSON($this->JSendSuccess));
     }
 
-    public function testCreateFromStringFailedWithInvalidJsonString()
+    public function testFromJSONFailedWithInvalidJsonString()
     {
         self::expectException(Exception::class);
         self::expectExceptionMessageRegExp('/Unable to decode the submitted JSON string: \w+/');
-        JSend::createFromString('fqdsfsd');
+        JSend::fromJSON('fqdsfsd');
+    }
+
+    public function testFromJSONThrowsTypeError()
+    {
+        self::expectException(TypeError::class);
+        JSend::fromJSON(tmpfile());
     }
 
     public function testSetState()
@@ -216,7 +252,7 @@ class JSendTest extends TestCase
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('The given status does not conform to Jsend specification');
-        JSend::createFromArray(['data' => ['post' => 1], 'code' => 404]);
+        JSend::fromArray(['data' => ['post' => 1], 'code' => 404]);
     }
 
     public function testWithStatusReturnSameInstance()
@@ -259,7 +295,7 @@ class JSendTest extends TestCase
         self::assertNotEquals($newObj, $this->JSendSuccess);
     }
 
-    public function testSendThrowsInvalidArgumentExceptionForInvalidHeaderName()
+    public function testSendThrowsExceptionForInvalidHeaderName()
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('Invalid header name');
@@ -269,7 +305,7 @@ class JSendTest extends TestCase
     /**
      * @dataProvider outputInvaludValueProvider
      */
-    public function testSendThrowsInvalidArgumentExceptionForInvalidHeaderValue($headers)
+    public function testSendThrowsExceptionForInvalidHeaderValue($headers)
     {
         self::expectException(Exception::class);
         self::expectExceptionMessage('Invalid header value');

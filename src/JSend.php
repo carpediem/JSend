@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Carpediem\JSend;
 
 use JsonSerializable;
+use TypeError;
 use const JSON_ERROR_NONE;
 use const JSON_HEX_AMP;
 use const JSON_HEX_APOS;
@@ -76,11 +77,19 @@ final class JSend implements JsonSerializable
      *
      * @throws Exception If the string can not be decode
      */
-    public static function createFromString(string $json, int $depth = 512, int $options = 0): self
+    public static function fromJSON($json, int $depth = 512, int $options = 0): self
     {
-        $raw = json_decode($json, true, $depth, $options);
+        if ($json instanceof JsonSerializable) {
+            return self::fromArray((array) $json->jsonSerialize());
+        }
+
+        if (!is_scalar($json) && !method_exists($json, '__toString')) {
+            throw new TypeError('The json argument must be a string, a stringable object or an object implementing the JsonSerializable interface');
+        }
+
+        $raw = json_decode((string) $json, true, $depth, $options);
         if (JSON_ERROR_NONE === json_last_error()) {
-            return static::createFromArray($raw);
+            return static::fromArray((array) $raw);
         }
 
         throw new Exception(sprintf('Unable to decode the submitted JSON string: %s', json_last_error_msg()));
@@ -89,7 +98,7 @@ final class JSend implements JsonSerializable
     /**
      * Returns a new instance from an array.
      */
-    public static function createFromArray(array $arr): self
+    public static function fromArray(array $arr): self
     {
         return new self($arr['status'] ?? '', $arr['data'] ?? null, $arr['message'] ?? null, $arr['code'] ?? null);
     }
@@ -138,7 +147,7 @@ final class JSend implements JsonSerializable
      * @param null|mixed $data
      * @param null|mixed $errorMessage
      */
-    public function __construct(
+    private function __construct(
         string $status,
         $data = null,
         $errorMessage = null,
@@ -182,15 +191,19 @@ final class JSend implements JsonSerializable
             return [];
         }
 
-        if ($data instanceof JsonSerializable) {
-            return (array) $data->jsonSerialize();
-        }
-
         if (is_array($data)) {
             return $data;
         }
 
-        throw new Exception('The data must be an array, a JsonSerializable object or null');
+        if (!$data instanceof JsonSerializable) {
+            throw new TypeError('The data must be an array, a JsonSerializable object or null');
+        }
+
+        if (is_array($res = $data->jsonSerialize())) {
+            return $res;
+        }
+
+        throw new Exception(sprintf('The JsonSerializable object must return an array %s returned', is_object($res) ? get_class($res) : gettype($res)));
     }
 
     /**
@@ -406,6 +419,7 @@ final class JSend implements JsonSerializable
      */
     public function withStatus(string $status): self
     {
+        $status = $this->filterStatus($status);
         if ($status === $this->status) {
             return $this;
         }
